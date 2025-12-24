@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { AuthInput } from '../components/AuthInput';
 import { useAuthStore } from '../store/authStore';
+import StatusModal, { ModalType } from '@/components/StatusModal';
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -12,13 +13,42 @@ export default function LoginPage() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [modalConfig, setModalConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        type: ModalType;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        type: 'error'
+    });
 
     const handleSubmit = async (e: React.FormEvent) => {
-        console.log(email, password);
         e.preventDefault();
-        // Here we would validate with Zod
-        await login(email);
-        navigate('/'); // Go to dashboard after login
+
+        if (!email.trim() || !password.trim()) {
+            setModalConfig({
+                isOpen: true,
+                title: 'Campos Vacíos',
+                message: 'Por favor, ingresa tu correo y contraseña.',
+                type: 'error'
+            });
+            return;
+        }
+
+        try {
+            await login({ email, password });
+            navigate('/'); // Go to dashboard after login
+        } catch (error) {
+            setModalConfig({
+                isOpen: true,
+                title: 'Error de Inicio de Sesión',
+                message: 'El correo o la contraseña son incorrectos. Por favor, inténtalo de nuevo.',
+                type: 'error'
+            });
+        }
     };
 
     return (
@@ -63,6 +93,14 @@ export default function LoginPage() {
                     {!isLoading && <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
                 </button>
             </form>
+
+            <StatusModal
+                isOpen={modalConfig.isOpen}
+                onClose={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
+                title={modalConfig.title}
+                message={modalConfig.message}
+                type={modalConfig.type}
+            />
         </AuthLayout>
     );
 }

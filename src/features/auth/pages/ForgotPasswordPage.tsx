@@ -3,16 +3,40 @@ import { Mail, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { AuthInput } from '../components/AuthInput';
+import { useAuthStore } from '../store/authStore';
+import StatusModal, { ModalType } from '@/components/StatusModal';
 
 export default function ForgotPasswordPage() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
+    const forgotPassword = useAuthStore(state => state.forgotPassword);
+    const isLoading = useAuthStore(state => state.isLoading);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const [modalConfig, setModalConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        type: ModalType;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        type: 'error'
+    });
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Simulate sending code
-        console.log('Sending code to', email);
-        navigate('/verify-code', { state: { email } });
+        try {
+            await forgotPassword(email);
+            navigate('/verify-code', { state: { email } });
+        } catch (error) {
+            setModalConfig({
+                isOpen: true,
+                title: 'Error',
+                message: 'No se pudo enviar el código. Verifique que el correo sea correcto.',
+                type: 'error'
+            });
+        }
     };
 
     return (
@@ -33,9 +57,10 @@ export default function ForgotPasswordPage() {
 
                 <button
                     type="submit"
-                    className="w-full bg-tivit-red hover:bg-red-600 text-white font-medium py-3 rounded-lg transition-all duration-300 transform active:scale-[0.98]"
+                    disabled={isLoading}
+                    className="w-full bg-tivit-red hover:bg-red-600 text-white font-medium py-3 rounded-lg transition-all duration-300 transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                    Enviar código
+                    {isLoading ? 'Enviando...' : 'Enviar código'}
                 </button>
 
                 <div className="flex justify-center mt-4">
@@ -48,6 +73,13 @@ export default function ForgotPasswordPage() {
                     </Link>
                 </div>
             </form>
+            <StatusModal
+                isOpen={modalConfig.isOpen}
+                onClose={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
+                title={modalConfig.title}
+                message={modalConfig.message}
+                type={modalConfig.type}
+            />
         </AuthLayout>
     );
 }

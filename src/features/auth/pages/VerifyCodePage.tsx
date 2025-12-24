@@ -1,20 +1,62 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../layouts/AuthLayout';
+import { useAuthStore } from '../store/authStore';
+import StatusModal, { ModalType } from '@/components/StatusModal';
 
 export default function VerifyCodePage() {
     const navigate = useNavigate();
     const location = useLocation();
     const email = location.state?.email || 'j*****@gmail.com';
+    const verifyCode = useAuthStore(state => state.verifyCode);
+    const isLoading = useAuthStore(state => state.isLoading);
 
     const [code, setCode] = useState<string[]>(Array(6).fill(''));
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+    const [modalConfig, setModalConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        type: ModalType;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        type: 'error'
+    });
 
     useEffect(() => {
         if (inputRefs.current[0]) {
             inputRefs.current[0].focus();
         }
     }, []);
+
+    // ... (handleChange and handleKeyDown remain same, skipping them in target content for safety if they are large, but I need to replace the imports and function start)
+    // Actually, I can allow the user to see the full file replace as it is safer given I have the full content.
+    // However, I will target the top part and handleSubmit.
+
+    // Changing imports and top of function:
+    // ...
+    // Changing handleSubmit:
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const fullCode = code.join('');
+        if (fullCode.length === 6) {
+            try {
+                await verifyCode(email, fullCode);
+                navigate('/reset-password', { state: { email, code: fullCode } });
+            } catch (error) {
+                setModalConfig({
+                    isOpen: true,
+                    title: 'Código Incorrecto',
+                    message: 'El código ingresado no es válido o ha expirado.',
+                    type: 'error'
+                });
+            }
+        }
+    };
 
     const handleChange = (index: number, value: string) => {
         if (!/^\d*$/.test(value)) return;
@@ -35,14 +77,7 @@ export default function VerifyCodePage() {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        const fullCode = code.join('');
-        if (fullCode.length === 6) {
-            console.log('Verifying code', fullCode);
-            navigate('/reset-password');
-        }
-    };
+
 
     return (
         <AuthLayout title="Verifica tu correo electrónico">
@@ -69,10 +104,10 @@ export default function VerifyCodePage() {
                 <div className="flex flex-col gap-4">
                     <button
                         type="submit"
-                        disabled={code.some(c => !c)}
+                        disabled={code.some(c => !c) || isLoading}
                         className="w-full bg-tivit-red hover:bg-red-600 text-white font-medium py-3 rounded-lg transition-all duration-300 transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Verificar código
+                        {isLoading ? 'Verificando...' : 'Verificar código'}
                     </button>
 
                     <button type="button" className="text-sm text-tivit-muted hover:text-white underline decoration-tivit-dim decoration-1 underline-offset-4">
@@ -80,6 +115,13 @@ export default function VerifyCodePage() {
                     </button>
                 </div>
             </form>
+            <StatusModal
+                isOpen={modalConfig.isOpen}
+                onClose={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
+                title={modalConfig.title}
+                message={modalConfig.message}
+                type={modalConfig.type}
+            />
         </AuthLayout>
     );
 }
