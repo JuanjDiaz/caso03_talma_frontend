@@ -43,5 +43,52 @@ export const UserService = {
     saveOrUpdate: async (data: UsuarioRequest): Promise<BaseOperacionResponse> => {
         const response = await api.post<BaseOperacionResponse>('/usuario/saveOrUpdate', data);
         return response.data;
+    },
+
+    getById: async (id: string): Promise<UsuarioFiltroResponse> => {
+        const response = await api.get<UsuarioFiltroResponse>(`/usuario/${id}`);
+        return response.data;
+    },
+
+    find: async (request: UsuarioFiltroRequest): Promise<CollectionResponse<UsuarioFiltroResponse>> => {
+        const response = await api.post<any>('/usuario/find', request);
+        // Map backend "elements" to frontend "data" and "totalCount" to "total"
+        return {
+            data: response.data.elements || [],
+            total: response.data.totalCount || 0
+        };
     }
 };
+
+export interface BaseRequest {
+    start?: number;
+    limit?: number;
+    sort?: string;
+    palabraClave?: string;
+    totalCount?: number;
+}
+
+export interface UsuarioFiltroRequest extends BaseRequest {
+    nombre?: string;
+    rolCodigo?: string;
+    fechaInicio?: string;
+    fechaFin?: string;
+}
+
+export interface UsuarioFiltroResponse {
+    usuarioId?: string;
+    nombreCompleto?: string;
+    correo?: string;
+    celular?: string;
+    rolCodigo?: string;
+    rol?: string;
+    tipoDocumento?: string;
+    documento?: string;
+    estado?: string;
+    creado?: string;
+}
+
+export interface CollectionResponse<T> {
+    data: T[];
+    total: number;
+}

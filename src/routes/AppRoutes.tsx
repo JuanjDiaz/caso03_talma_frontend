@@ -5,24 +5,23 @@ import VerifyCodePage from '@/features/auth/pages/VerifyCodePage';
 import ResetPasswordPage from '@/features/auth/pages/ResetPasswordPage';
 import MainLayout from '@/layouts/MainLayout';
 import CreateUser from '@/pages/users/CreateUser';
+import UserList from '@/pages/users/UserList';
 
 const AppRoutes = () => {
     return (
         <Routes>
-            {/* Auth Routes */}
+
             <Route path="/login" element={<LoginPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/verify-code" element={<VerifyCodePage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
-
-            {/* Main App Routes */}
             <Route element={<MainLayout />}>
                 <Route path="/users/create" element={<CreateUser />} />
-                {/* Fallback to /users/create for now as it's the only page */}
-                <Route path="/" element={<Navigate to="/users/create" replace />} />
+                <Route path="/users/edit/:id" element={<CreateUser />} />
+                <Route path="/users" element={<UserList />} />
+                <Route path="/" element={<Navigate to="/users" replace />} />
             </Route>
 
-            {/* Global Fallback */}
             <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
     );
