@@ -93,11 +93,15 @@ export default function LoginPage() {
             setLoading(false);
             console.error(error);
             const errorMessage = error.response?.data?.detail || '';
+            const status = error.response?.status;
 
             let title = 'Error de Inicio de Sesión';
             let message = 'El correo o la contraseña son incorrectos. Por favor, inténtalo de nuevo.';
 
-            if (errorMessage === 'Incorrect email or password') {
+            if (status === 403) {
+                title = 'Cuenta Inhabilitada';
+                message = errorMessage || 'El usuario se encuentra inhabilitado. Por favor, contacte al administrador.';
+            } else if (errorMessage === 'Incorrect email or password') {
                 title = 'Error de Autenticación';
                 message = 'Correo o contraseña incorrectos. Por favor, verifica tus datos.';
             }
