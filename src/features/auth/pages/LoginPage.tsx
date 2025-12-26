@@ -10,6 +10,7 @@ import { AuthService } from '@/services/AuthService';
 export default function LoginPage() {
     const navigate = useNavigate();
     const login = useAuthStore(state => state.login);
+    const setLoading = useAuthStore(state => state.setLoading);
     const isLoading = useAuthStore(state => state.isLoading);
 
     const [email, setEmail] = useState('');
@@ -40,6 +41,7 @@ export default function LoginPage() {
         }
 
         try {
+            setLoading(true);
             // 1. Login to get token
             const { access_token } = await AuthService.login({ email, password });
 
@@ -87,12 +89,23 @@ export default function LoginPage() {
 
             login(user, access_token);
             navigate('/users');
-        } catch (error) {
+        } catch (error: any) {
+            setLoading(false);
             console.error(error);
+            const errorMessage = error.response?.data?.detail || '';
+
+            let title = 'Error de Inicio de Sesión';
+            let message = 'El correo o la contraseña son incorrectos. Por favor, inténtalo de nuevo.';
+
+            if (errorMessage === 'Incorrect email or password') {
+                title = 'Error de Autenticación';
+                message = 'Correo o contraseña incorrectos. Por favor, verifica tus datos.';
+            }
+
             setModalConfig({
                 isOpen: true,
-                title: 'Error de Inicio de Sesión',
-                message: 'El correo o la contraseña son incorrectos. Por favor, inténtalo de nuevo.',
+                title,
+                message,
                 type: 'error'
             });
         }
@@ -108,7 +121,6 @@ export default function LoginPage() {
                     icon={Mail}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    required
                 />
 
                 <div className="space-y-1">
@@ -119,7 +131,6 @@ export default function LoginPage() {
                         icon={Lock}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        required
                     />
                     <div className="flex justify-start">
                         <Link

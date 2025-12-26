@@ -26,14 +26,35 @@ export default function ForgotPasswordPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!email.trim()) {
+            setModalConfig({
+                isOpen: true,
+                title: 'Campo Vacío',
+                message: 'Por favor, ingresa tu correo.',
+                type: 'error'
+            });
+            return;
+        }
+
         try {
             await forgotPassword(email);
             navigate('/verify-code', { state: { email } });
-        } catch (error) {
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.detail || '';
+
+            let title = 'Error';
+            let message = 'No se pudo enviar el código. Por favor, inténtalo de nuevo.';
+
+            if (errorMessage === 'Email not registered') {
+                title = 'Correo no registrado';
+                message = 'Este correo electrónico no se encuentra registrado en el sistema.';
+            }
+
             setModalConfig({
                 isOpen: true,
-                title: 'Error',
-                message: 'No se pudo enviar el código. Verifique que el correo sea correcto.',
+                title,
+                message,
                 type: 'error'
             });
         }
@@ -52,7 +73,6 @@ export default function ForgotPasswordPage() {
                     icon={Mail}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    required
                 />
 
                 <button

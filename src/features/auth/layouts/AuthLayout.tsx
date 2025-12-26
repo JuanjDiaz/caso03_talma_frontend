@@ -11,17 +11,17 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title }) => {
             {/* Background Pattern */}
             <div className="absolute inset-0 z-0 opacity-20 pointer-events-none select-none overflow-hidden">
                 {/* Floating TIVIT text elements */}
-                <div className="absolute top-[11%] left-[15%] text-[6rem] font-bold text-transparent tivit-stroke-3">TIVIT</div>
-                <div className="absolute top-[2%] left-[40%] text-[6rem] font-bold text-transparent tivit-stroke-3">TIVIT</div>
-                <div className="absolute top-[40%] right-[10%] text-[6rem] font-bold text-transparent transform tivit-stroke-3">TIVIT</div>
-                <div className="absolute bottom-[3%] left-[10%] text-[6rem] font-bold text-transparent transform tivit-stroke-3">TIVIT</div>
-                <div className="absolute -bottom-[7%] right-[25%] text-[6rem] font-bold text-transparent transform tivit-stroke-3">TIVIT</div>
+                <div className="absolute top-[11%] left-[15%] text-[6rem] font-bold text-transparent text-stroke-3 text-stroke-red">TIVIT</div>
+                <div className="absolute top-[2%] left-[40%] text-[6rem] font-bold text-transparent text-stroke-3 text-stroke-red">TIVIT</div>
+                <div className="absolute top-[40%] right-[10%] text-[6rem] font-bold text-transparent transform text-stroke-3 text-stroke-red">TIVIT</div>
+                <div className="absolute bottom-[3%] left-[10%] text-[6rem] font-bold text-transparent transform text-stroke-3 text-stroke-red">TIVIT</div>
+                <div className="absolute -bottom-[7%] right-[25%] text-[6rem] font-bold text-transparent transform text-stroke-3 text-stroke-red">TIVIT</div>
 
                 {/* Smaller scattered ones */}
-                <div className="absolute top-[40%] left-[5%] text-[3rem] font-bold text-transparent tivit-stroke-2">TIVIT</div>
-                <div className="absolute top-[60%] left-[15%] text-[3rem] font-bold text-transparent tivit-stroke-2">TIVIT</div>
-                <div className="absolute top-[70%] right-[10%] text-[3rem] font-bold text-transparent tivit-stroke-2">TIVIT</div>
-                <div className="absolute top-[20%] right-[10%] text-[3rem] font-bold text-transparent tivit-stroke-2">TIVIT</div>
+                <div className="absolute top-[40%] left-[5%] text-[3rem] font-bold text-transparent text-stroke-2 text-stroke-red">TIVIT</div>
+                <div className="absolute top-[60%] left-[15%] text-[3rem] font-bold text-transparent text-stroke-2 text-stroke-red">TIVIT</div>
+                <div className="absolute top-[70%] right-[10%] text-[3rem] font-bold text-transparent text-stroke-2 text-stroke-red">TIVIT</div>
+                <div className="absolute top-[20%] right-[10%] text-[3rem] font-bold text-transparent text-stroke-2 text-stroke-red">TIVIT</div>
 
                 {/* Center glow */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-tivit-red/5 rounded-full blur-3xl"></div>

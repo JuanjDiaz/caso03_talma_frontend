@@ -10,7 +10,7 @@ export default {
                 tivit: {
                     // Base backgrounds - Deep rich darks
                     dark: '#050505',      // Main background (near black)
-                    card: '#09090b',      // Card background
+                    card: '#070707',      // Card background
                     surface: '#0A0A0A',   // Hover/Secondary surface
 
                     // Accents

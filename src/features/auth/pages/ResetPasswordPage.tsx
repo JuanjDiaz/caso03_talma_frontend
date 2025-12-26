@@ -59,11 +59,24 @@ export default function ResetPasswordPage() {
                 type: 'success'
             });
             setTimeout(() => navigate('/login'), 2000);
-        } catch (error) {
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.detail || '';
+
+            let title = 'Error';
+            let message = 'No se pudo restablecer la contraseña. Inténtalo de nuevo.';
+
+            if (errorMessage === 'Verification code has expired') {
+                title = 'Código Expirado';
+                message = 'El código de verificación ha expirado. Por favor, reinicia el proceso.';
+            } else if (errorMessage === 'Invalid verification code') {
+                title = 'Código Inválido';
+                message = 'El código de verificación ya no es válido. Por favor, reinicia el proceso.';
+            }
+
             setModalConfig({
                 isOpen: true,
-                title: 'Error',
-                message: 'No se pudo restablecer la contraseña. Inténtalo de nuevo.',
+                title,
+                message,
                 type: 'error'
             });
         }

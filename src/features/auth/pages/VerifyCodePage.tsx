@@ -9,9 +9,11 @@ export default function VerifyCodePage() {
     const location = useLocation();
     const email = location.state?.email || 'j*****@gmail.com';
     const verifyCode = useAuthStore(state => state.verifyCode);
+    const forgotPassword = useAuthStore(state => state.forgotPassword);
     const isLoading = useAuthStore(state => state.isLoading);
 
     const [code, setCode] = useState<string[]>(Array(6).fill(''));
+    const [timer, setTimer] = useState(0);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     const [modalConfig, setModalConfig] = useState<{
@@ -32,6 +34,16 @@ export default function VerifyCodePage() {
         }
     }, []);
 
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (timer > 0) {
+            interval = setInterval(() => {
+                setTimer((prev) => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [timer]);
+
     // ... (handleChange and handleKeyDown remain same, skipping them in target content for safety if they are large, but I need to replace the imports and function start)
     // Actually, I can allow the user to see the full file replace as it is safer given I have the full content.
     // However, I will target the top part and handleSubmit.
@@ -47,11 +59,24 @@ export default function VerifyCodePage() {
             try {
                 await verifyCode(email, fullCode);
                 navigate('/reset-password', { state: { email, code: fullCode } });
-            } catch (error) {
+            } catch (error: any) {
+                const errorMessage = error.response?.data?.detail || '';
+
+                let title = 'Código Incorrecto';
+                let message = 'El código ingresado no es válido.';
+
+                if (errorMessage === 'Verification code has expired') {
+                    title = 'Código Expirado';
+                    message = 'El código de verificación ha expirado. Por favor, solicita uno nuevo.';
+                } else if (errorMessage === 'Invalid verification code') {
+                    title = 'Código Inválido';
+                    message = 'El código de verificación es incorrecto. Por favor, revísalo e intenta de nuevo.';
+                }
+
                 setModalConfig({
                     isOpen: true,
-                    title: 'Código Incorrecto',
-                    message: 'El código ingresado no es válido o ha expirado.',
+                    title,
+                    message,
                     type: 'error'
                 });
             }
@@ -74,6 +99,28 @@ export default function VerifyCodePage() {
     const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
         if (e.key === 'Backspace' && !code[index] && index > 0) {
             inputRefs.current[index - 1]?.focus();
+        }
+    };
+
+    const handleResendCode = async () => {
+        if (timer > 0 || isLoading) return;
+
+        try {
+            await forgotPassword(email);
+            setTimer(60);
+            setModalConfig({
+                isOpen: true,
+                title: 'Código Enviado',
+                message: 'Se ha enviado un nuevo código de verificación a tu correo.',
+                type: 'success'
+            });
+        } catch (error) {
+            setModalConfig({
+                isOpen: true,
+                title: 'Error',
+                message: 'No se pudo reenviar el código. Por favor, inténtalo de nuevo.',
+                type: 'error'
+            });
         }
     };
 
@@ -110,8 +157,13 @@ export default function VerifyCodePage() {
                         {isLoading ? 'Verificando...' : 'Verificar código'}
                     </button>
 
-                    <button type="button" className="text-sm text-tivit-muted hover:text-white underline decoration-tivit-dim decoration-1 underline-offset-4">
-                        Reenviar código
+                    <button
+                        type="button"
+                        onClick={handleResendCode}
+                        disabled={timer > 0 || isLoading}
+                        className="text-sm text-tivit-muted hover:text-white underline decoration-tivit-dim decoration-1 underline-offset-4 disabled:opacity-50 disabled:no-underline disabled:cursor-not-allowed transition-all"
+                    >
+                        {timer > 0 ? `Reenviar en ${timer}s` : 'Reenviar código'}
                     </button>
                 </div>
             </form>
