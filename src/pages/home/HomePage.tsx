@@ -20,6 +20,11 @@ const HomePage: React.FC = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Prevent browser from restoring scroll position automatically
+        if (history.scrollRestoration) {
+            history.scrollRestoration = 'manual';
+        }
+
         const loadDashboard = async () => {
             try {
                 const [metricsData, activityData] = await Promise.all([
@@ -32,9 +37,18 @@ const HomePage: React.FC = () => {
                 console.error("Error loading dashboard:", error);
             } finally {
                 setLoading(false);
+                // Force scroll to top after content is fully loaded
+                setTimeout(() => window.scrollTo(0, 0), 0);
             }
         };
         loadDashboard();
+
+        return () => {
+            // Restore default behavior on unmount (optional, but good practice)
+            if (history.scrollRestoration) {
+                history.scrollRestoration = 'auto';
+            }
+        };
     }, []);
 
     const containerVariants = {
@@ -250,9 +264,9 @@ const HomePage: React.FC = () => {
                                                     'border-blue-500/30 text-blue-500'}
                                     `}>
                                         <div className={`w-1.5 h-1.5 rounded-full ${item.status === 'success' ? 'bg-emerald-500' :
-                                                item.status === 'error' ? 'bg-red-500' :
-                                                    item.status === 'warning' ? 'bg-yellow-500' :
-                                                        'bg-blue-500'
+                                            item.status === 'error' ? 'bg-red-500' :
+                                                item.status === 'warning' ? 'bg-yellow-500' :
+                                                    'bg-blue-500'
                                             }`} />
                                     </div>
                                     <div>

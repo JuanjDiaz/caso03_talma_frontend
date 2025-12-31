@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Edit2, FileText, Plane, CheckCircle, XCircle, AlertTriangle, ShieldCheck,
     MoreVertical, Eye, Download, Send, Activity, RefreshCw
@@ -63,12 +64,20 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
         }
     };
 
+    const navigate = useNavigate();
+
+    // ... (menu logic)
+
     const handleAction = (action: string, doc: GuiaAereaDataGridResponse) => {
         setOpenMenuId(null);
         console.log(`Action: ${action} on doc: ${doc.numero}`);
-        // Implement specific handlers here or accept them as props
 
-        if (action === 'view' && onEdit) {
+        if (action === 'view') {
+            navigate(`/air-waybills/view/${doc.guiaAereaId}`, { state: { doc } });
+            return;
+        }
+
+        if (onEdit) {
             onEdit(doc);
         }
     };

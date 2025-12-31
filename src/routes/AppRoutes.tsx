@@ -8,6 +8,7 @@ import CreateUser from '@/pages/users/CreateUser';
 import UserList from '@/pages/users/UserList';
 import AirWaybillList from '@/pages/air-waybills/AirWaybillList';
 import UploadAirWaybill from '@/pages/air-waybills/UploadAirWaybill';
+import AirWaybillDetailPage from '@/pages/air-waybills/AirWaybillDetailPage';
 import HomePage from '@/pages/home/HomePage';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -30,6 +31,7 @@ const AppRoutes = () => {
 
                     <Route path="/air-waybills" element={<AirWaybillList viewCode="VC001" pageTitle="Gestión de Guías Aéreas" />} />
                     <Route path="/air-waybills/rectify" element={<AirWaybillList viewCode="VC002" pageTitle="Subsanación de Guías" />} />
+                    <Route path="/air-waybills/view/:id" element={<AirWaybillDetailPage />} />
                     <Route path="/air-waybills/upload" element={<UploadAirWaybill />} />
                 </Route>
             </Route>
