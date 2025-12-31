@@ -62,6 +62,14 @@ export const UserService = {
             data: response.data.elements || [],
             total: response.data.totalCount || 0
         };
+    },
+
+    updatePassword: async (password: string, confirmPassword: string): Promise<BaseOperacionResponse> => {
+        const response = await api.post<BaseOperacionResponse>('/usuario/updatePassword', {
+            password: password,
+            confirmarPassword: confirmPassword
+        });
+        return response.data;
     }
 };
 

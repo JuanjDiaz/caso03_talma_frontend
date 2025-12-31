@@ -1,15 +1,35 @@
 import { Settings, HelpCircle, User, LogOut, Bell, Menu } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
+import { ChangePasswordModal } from '../features/auth/components/ChangePasswordModal';
 
 interface HeaderProps {
     onMenuClick?: () => void;
 }
 
 export default function Header({ onMenuClick }: HeaderProps) {
-    const { logout } = useAuthStore();
+    const { logout, user } = useAuthStore();
     const navigate = useNavigate();
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const menuRef = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsUserMenuOpen(false);
+            }
+        };
+
+        if (isUserMenuOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isUserMenuOpen]);
 
     const handleLogout = () => {
         logout();
@@ -59,17 +79,61 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
                     <div className="w-px h-5 bg-white/10 mx-2"></div>
 
-                    <button className="flex items-center justify-center w-9 h-9 text-tivit-muted hover:text-white transition-colors duration-300 rounded-lg hover:bg-white/5" title="Perfil">
-                        <User size={18} />
-                    </button>
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center justify-center w-9 h-9 text-tivit-muted hover:text-white transition-colors duration-300 rounded-lg hover:bg-white/5" title="Cerrar sesión"
-                    >
-                        <LogOut size={18} />
-                    </button>
+                    <div className="relative" ref={menuRef}>
+                        <button
+                            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                            className={`flex items-center justify-center w-9 h-9 text-tivit-muted hover:text-white transition-colors duration-300 rounded-lg ${isUserMenuOpen ? 'bg-white/10 text-white' : 'hover:bg-white/5'}`}
+                            title="Perfil"
+                        >
+                            <User size={18} />
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        {isUserMenuOpen && (
+                            <div className="absolute right-0 mt-2 w-56 bg-[#0F1115] border border-white/10 rounded-xl shadow-xl z-50 py-1 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                                <div className="px-4 py-3 border-b border-white/5">
+                                    <p className="text-sm font-medium text-white truncate">
+                                        {user?.name || "Usuario"}
+                                    </p>
+                                    <p className="text-xs text-tivit-muted truncate mt-0.5">
+                                        {user?.role || "Rol"}
+                                    </p>
+                                </div>
+
+                                <div className="p-1">
+                                    <button
+                                        onClick={() => {
+                                            setIsUserMenuOpen(false);
+                                            setIsPasswordModalOpen(true);
+                                        }}
+                                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors text-left"
+                                    >
+                                        <div className="p-1.5 bg-white/5 rounded-md text-tivit-muted group-hover:text-white">
+                                            <Settings size={14} />
+                                        </div>
+                                        Cambiar Contraseña
+                                    </button>
+
+                                    <button
+                                        onClick={handleLogout}
+                                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors text-left mt-1"
+                                    >
+                                        <div className="p-1.5 bg-red-500/10 rounded-md text-red-500">
+                                            <LogOut size={14} />
+                                        </div>
+                                        Cerrar Sesión
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </nav>
             </div>
+
+            <ChangePasswordModal
+                isOpen={isPasswordModalOpen}
+                onClose={() => setIsPasswordModalOpen(false)}
+            />
         </header>
     );
 }
