@@ -96,5 +96,10 @@ export const DocumentService = {
             data: response.data.elements || [],
             total: response.data.totalCount || 0
         };
+    },
+
+    reprocess: async (documentId: string): Promise<BaseOperacionResponse> => {
+        const response = await api.post<BaseOperacionResponse>(`/document/reprocess/${documentId}`);
+        return response.data;
     }
 };

@@ -6,6 +6,8 @@ import AirWaybillFilterBar from './components/AirWaybillFilterBar';
 import AirWaybillSidePanel from './components/AirWaybillSidePanel';
 import AirWaybillListPagination from './components/AirWaybillListPagination';
 import UserLoadingOverlay from '../users/components/UserLoadingOverlay';
+import SuccessModal from '../../components/SuccessModal';
+import ReprocessConfirmationModal from './components/ReprocessConfirmationModal';
 
 interface AirWaybillListProps {
     viewCode?: string;
@@ -21,6 +23,13 @@ const AirWaybillList: React.FC<AirWaybillListProps> = ({
     const [loading, setLoading] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [totalRecords, setTotalRecords] = useState(0);
+
+    // Modal States
+    const [reprocessModalOpen, setReprocessModalOpen] = useState(false);
+    const [successModalOpen, setSuccessModalOpen] = useState(false);
+    const [selectedDoc, setSelectedDoc] = useState<GuiaAereaDataGridResponse | null>(null);
+    const [reprocessLoading, setReprocessLoading] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
 
     // Initial state for filters
     const [filters, setFilters] = useState<GuiaAereaFiltroRequest>({
@@ -121,8 +130,37 @@ const AirWaybillList: React.FC<AirWaybillListProps> = ({
     };
 
     const handleEdit = (doc: GuiaAereaDataGridResponse) => {
-        // Navigate to detail view if exists
-        console.log("Viewing doc:", doc);
+        // If ViewCode is VC002 (Subsanar), we open the reprocess modal logic
+        if (viewCode === 'VC002') {
+            setSelectedDoc(doc);
+            setReprocessModalOpen(true);
+        } else {
+            // Default behavior (if we ever enable edit for other views, currently disabled for VC001)
+            navigate(`/air-waybills/view/${doc.guiaAereaId}`, { state: { doc } });
+        }
+    };
+
+    const handleConfirmReprocess = async () => {
+        if (!selectedDoc?.guiaAereaId) return;
+        setReprocessLoading(true);
+        try {
+            const res = await DocumentService.reprocess(selectedDoc.guiaAereaId);
+            setReprocessModalOpen(false);
+            setSuccessMessage(res.mensaje || "El documento ha sido enviado a reprocesamiento exitosamente.");
+            setSuccessModalOpen(true);
+            fetchDocuments(); // Refresh list to show new status
+        } catch (e) {
+            console.error("Error reprocessing:", e);
+            // Could add error toast here
+        } finally {
+            setReprocessLoading(false);
+        }
+    };
+
+    const handleCloseSuccess = () => {
+        setSuccessModalOpen(false);
+        setSuccessMessage("");
+        setSelectedDoc(null);
     };
 
     // Pagination Calculations
@@ -170,7 +208,8 @@ const AirWaybillList: React.FC<AirWaybillListProps> = ({
             <AirWaybillTable
                 documents={documents}
                 loading={loading}
-                onEdit={handleEdit}
+                // Condition: Hide Edit button for VC001 (Registros), Show for VC002 (Subsanar) or others
+                onEdit={viewCode === 'VC001' ? undefined : handleEdit}
                 viewCode={viewCode}
             />
 
@@ -181,6 +220,22 @@ const AirWaybillList: React.FC<AirWaybillListProps> = ({
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
+            />
+
+            {/* Modals */}
+            <ReprocessConfirmationModal
+                isOpen={reprocessModalOpen}
+                onClose={() => setReprocessModalOpen(false)}
+                onConfirm={handleConfirmReprocess}
+                document={selectedDoc}
+                loading={reprocessLoading}
+            />
+
+            <SuccessModal
+                isOpen={successModalOpen}
+                onClose={handleCloseSuccess}
+                title="Reprocesamiento Iniciado"
+                message={successMessage}
             />
         </div>
     );
