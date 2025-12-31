@@ -30,4 +30,22 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     return config;
 });
 
+
+// Interceptor para manejar respuestas (ej. 401 Unauthorized)
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            // Token inválido o expirado
+            // 1. Limpiar storage
+            localStorage.removeItem('auth-storage');
+            localStorage.removeItem('token');
+            // 2. Redirigir al login
+            // Usamos window.location para forzar una recarga y limpiar estado en memoria si es necesario
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default api;

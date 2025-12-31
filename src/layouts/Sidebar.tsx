@@ -8,7 +8,8 @@ import {
     Map,
     ChevronRight,
     ChevronDown,
-    LogOut
+    LogOut,
+    AlertTriangle
 } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 
@@ -44,8 +45,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     };
 
     const navItems: NavItem[] = [
-        { icon: Home, label: 'Inicio', path: '/' },
-        { icon: FileText, label: 'Guías aéreas', path: '/guias' },
+        { icon: Home, label: 'Inicio', path: '/home' },
+        {
+            icon: FileText,
+            label: 'Guías aéreas',
+            children: [
+                { icon: BarChart3, label: 'Registros', path: '/air-waybills' },
+                { icon: AlertTriangle, label: 'Subsanar', path: '/air-waybills/rectify' },
+            ],
+        },
         { icon: Map, label: 'Trazabilidad', path: '/trazabilidad' },
         { icon: BarChart3, label: 'Reportes', path: '/reports' },
         {
@@ -130,6 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                     <div className="mt-1 ml-4 space-y-1 border-l border-gray-800 pl-2">
                                         {item.children!.map((subItem) => (
                                             <NavLink
+                                                end
                                                 key={subItem.path}
                                                 to={subItem.path!}
                                                 onClick={() => window.innerWidth < 1024 && onClose()}

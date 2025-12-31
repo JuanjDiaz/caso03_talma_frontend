@@ -88,7 +88,7 @@ export default function LoginPage() {
             const user = await AuthService.getMe();
 
             login(user, access_token);
-            navigate('/users');
+            navigate('/home');
         } catch (error: any) {
             setLoading(false);
             console.error(error);
