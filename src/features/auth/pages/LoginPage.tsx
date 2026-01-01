@@ -45,50 +45,18 @@ export default function LoginPage() {
             // 1. Login to get token
             const { access_token } = await AuthService.login({ email, password });
 
-            // 2. Temporarily set token for the next request (getMe)
-            // Note: We might need to update axios interceptor to read this, or store.login handles it?
-            // Store handles persisting, but axios needs to read it.
-            // If we use store.login, it sets state. But axios reads from localStorage.
-            // We should ensure axios reads correctly. 
-            // For now, let's assume store syncs with localStorage quickly or we might need to manually set it for immediate use if axios reads from localStorage.
-
-            // However, the cleanest way is:
-            // AuthService.login -> returns token.
-            // We manually set token in localStorage or pass it to getMe if possible? 
-            // Axios interceptor reads from localStorage.getItem('token') currently (WHICH IS WRONG, see next step).
-            // But let's act as if we fixed axios to read from store or we set it here.
-
-            // Let's set it manually first to ensure getMe works if axios is using 'token' key (Current implementation of axiod.ts uses 'token').
-            // AND the store uses 'auth-storage'.
-            // I will align them. I will change axios to read from 'auth-storage' later (or now).
-            // If I fix axios later, I can't rely on it here yet unless I fix it first.
-            // I will fix axios NEXT. So here I will assume axios will work.
-            // BUT to make `getMe` work *right now*, I should set the token where axios expects it OR pass header manually.
-
-            // Let's rely on fixing axios to read from `auth-storage`.
-            // BUT `auth-storage` is updated by `store.login`.
-            // So we can't call `store.login` BEFORE `getMe` because `store.login` needs `user` object.
-            // And `getMe` needs `token`.
-            // Catch-22? No, we have the token.
-
-            // Solution: We can set the default header for axios instance directly!
-            // import api from... api.defaults.headers.common['Authorization'] = ...
-
-            // Or just update localStorage 'token' as a fallback?
-            // No, let's do it cleanly:
-            // 1. Get token.
-            // 2. Fetch user (manually passing header to getMe if needed? No, getMe uses api instance).
-
-            // I will modify AuthService.getMe to accept token optionally or just use the interceptor.
-            // I'll update axios.ts to read from `auth-storage` AND `localStorage.getItem('token')` as fallback.
-            // So here I will set `localStorage.setItem('token', access_token)` TEMPORARILY to make `getMe` work,
-            // then `store.login` will overwrite/manage `auth-storage`.
-
             localStorage.setItem('token', access_token);
             const user = await AuthService.getMe();
 
+            if (user.primerIngreso) {
+                setLoading(false);
+                // Navigate to reset password passing email and current password as code
+                navigate('/reset-password', { state: { email, code: password, isFirstLogin: true } });
+                return;
+            }
+
             login(user, access_token);
-            navigate('/users');
+            navigate('/home');
         } catch (error: any) {
             setLoading(false);
             console.error(error);

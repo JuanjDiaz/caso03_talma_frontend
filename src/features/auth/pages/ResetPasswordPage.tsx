@@ -3,19 +3,22 @@ import { Lock, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { AuthInput } from '../components/AuthInput';
-import { useAuthStore } from '../store/authStore';
 import StatusModal, { ModalType } from '@/components/StatusModal';
+import { useEffect } from 'react';
+import { AuthService } from '@/services/AuthService';
 
 export default function ResetPasswordPage() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { email, code } = location.state || {}; // Expect email and code from previous step
+    const { email, code, isFirstLogin } = location.state || {}; // Expect email and code from previous step
 
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    const resetPassword = useAuthStore(state => state.resetPassword);
-    const isLoading = useAuthStore(state => state.isLoading);
+    // const resetPassword = useAuthStore(state => state.resetPassword); // Removed as it doesn't exist in store
+    // const isLoading = useAuthStore(state => state.isLoading);
+    // const setLoading = useAuthStore(state => state.setLoading);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [modalConfig, setModalConfig] = useState<{
         isOpen: boolean;
@@ -29,6 +32,17 @@ export default function ResetPasswordPage() {
         type: 'error'
     });
 
+    useEffect(() => {
+        if (isFirstLogin) {
+            setModalConfig({
+                isOpen: true,
+                title: 'Cambio de Contraseña',
+                message: 'Por seguridad, es obligatorio cambiar tu contraseña en tu primer ingreso.',
+                type: 'info'
+            });
+        }
+    }, [isFirstLogin]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (password !== confirmPassword) {
@@ -40,7 +54,9 @@ export default function ResetPasswordPage() {
             });
             return;
         }
-        if (!email || !code) {
+
+        // Only check for email and code if it's NOT a first login (authenticated change)
+        if (!isFirstLogin && (!email || !code)) {
             setModalConfig({
                 isOpen: true,
                 title: 'Error de Verificación',
@@ -50,8 +66,17 @@ export default function ResetPasswordPage() {
             return;
         }
 
+        const payload = { email, code, new_password: password };
+
         try {
-            await resetPassword({ email, code, new_password: password });
+            setIsLoading(true);
+            if (isFirstLogin) {
+                await AuthService.changePassword(password);
+            } else {
+                await AuthService.resetPassword(payload);
+            }
+            setIsLoading(false);
+
             setModalConfig({
                 isOpen: true,
                 title: 'Contraseña Actualizada',
@@ -60,6 +85,7 @@ export default function ResetPasswordPage() {
             });
             setTimeout(() => navigate('/login'), 2000);
         } catch (error: any) {
+            setIsLoading(false);
             const errorMessage = error.response?.data?.detail || '';
 
             let title = 'Error';
@@ -83,7 +109,7 @@ export default function ResetPasswordPage() {
     };
 
     return (
-        <AuthLayout title="Reestablecer contraseña">
+        <AuthLayout title={isFirstLogin ? "Cambiar contraseña" : "Reestablecer contraseña"}>
             <form onSubmit={handleSubmit} className="space-y-6">
                 <AuthInput
                     label="Nueva contraseña"
@@ -93,6 +119,7 @@ export default function ResetPasswordPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    minLength={8}
                 />
 
                 <AuthInput
@@ -103,6 +130,7 @@ export default function ResetPasswordPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
+                    minLength={8}
                 />
 
                 <button
