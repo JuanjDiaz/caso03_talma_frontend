@@ -4,15 +4,15 @@ import ForgotPasswordPage from '@/features/auth/pages/ForgotPasswordPage';
 import VerifyCodePage from '@/features/auth/pages/VerifyCodePage';
 import ResetPasswordPage from '@/features/auth/pages/ResetPasswordPage';
 import MainLayout from '@/layouts/MainLayout';
-import CreateUser from '@/pages/users/CreateUser';
-import UserList from '@/pages/users/UserList';
-import AirWaybillList from '@/pages/air-waybills/AirWaybillList';
-import UploadAirWaybill from '@/pages/air-waybills/UploadAirWaybill';
-import AirWaybillDetailPage from '@/pages/air-waybills/AirWaybillDetailPage';
-import HomePage from '@/pages/home/HomePage';
+import CreateUser from '@/features/users/pages/CreateUser';
+import UserList from '@/features/users/pages/UserList';
+import AirWaybillList from '@/features/air-waybills/pages/AirWaybillList';
+import UploadAirWaybill from '@/features/air-waybills/pages/UploadAirWaybill';
+import AirWaybillDetailPage from '@/features/air-waybills/pages/AirWaybillDetailPage';
+import HomePage from '@/features/home/pages/HomePage';
 import ProtectedRoute from './ProtectedRoute';
-import AirWaybillRectifyList from '@/pages/air-waybills/AirWaybillRectifyList';
-import AirWaybillRectifyPage from '@/pages/air-waybills/AirWaybillRectifyPage';
+import AirWaybillRectifyList from '@/features/air-waybills/pages/AirWaybillRectifyList';
+import AirWaybillRectifyPage from '@/features/air-waybills/pages/AirWaybillRectifyPage';
 import DocumentsPage from '@/features/documents/pages/DocumentsPage';
 
 const AppRoutes = () => {

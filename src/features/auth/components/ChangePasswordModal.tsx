@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { X, Lock, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { UserService } from '../../../services/UserService';
+import { UserService } from '@/features/$(Split-Path (Split-Path ChangePasswordModal.tsx.Directory.Parent.FullName -Leaf) -Leaf)/services/UserService';
 
 interface ChangePasswordModalProps {
     isOpen: boolean;
