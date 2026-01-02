@@ -37,7 +37,29 @@ const AirWaybillList: React.FC = () => {
         try {
             const response = await DocumentService.find(filters);
             if (lastRequestTime.current === thisRequestTime) {
-                setDocuments(response.data);
+                // Map intervinientes to flat fields if not already done by backend
+                const mappedData = response.data.map(doc => {
+                    // If backend already provides flat fields, use them
+                    if (doc.nombreRemitente && doc.nombreConsignatario) {
+                        return doc;
+                    }
+
+                    // Otherwise, extract from intervinientesValidos
+                    const remitente = (doc as any).intervinientesValidos?.find((i: any) => i.tipoCodigo === 'TPIN001');
+                    const consignatario = (doc as any).intervinientesValidos?.find((i: any) => i.tipoCodigo === 'TPIN002');
+
+                    return {
+                        ...doc,
+                        nombreRemitente: remitente?.nombre || doc.nombreRemitente,
+                        direccionRemitente: remitente?.direccion || doc.direccionRemitente,
+                        telefonoRemitente: remitente?.telefono || doc.telefonoRemitente,
+                        nombreConsignatario: consignatario?.nombre || doc.nombreConsignatario,
+                        direccionConsignatario: consignatario?.direccion || doc.direccionConsignatario,
+                        telefonoConsignatario: consignatario?.telefono || doc.telefonoConsignatario,
+                    };
+                });
+
+                setDocuments(mappedData);
                 setTotalRecords(response.total);
             }
         } catch (error) {

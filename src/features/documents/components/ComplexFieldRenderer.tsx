@@ -1,16 +1,20 @@
-import { motion } from 'framer-motion';
+import React from 'react';
+import { formatLabel } from '@/lib/utils';
 
 interface ComplexFieldRendererProps {
     value: any;
     depth?: number;
     onChange?: (value: any) => void;
     isAnonymized?: boolean;
+    isKeyDisplay?: boolean;
 }
 
-export default function ComplexFieldRenderer({ value, depth = 0, onChange, isAnonymized = false }: ComplexFieldRendererProps) {
+export default function ComplexFieldRenderer({ value, depth = 0, onChange, isAnonymized = false, isKeyDisplay = false }: ComplexFieldRendererProps) {
     if (value === null || value === undefined) {
         return <span className="text-zinc-600 italic">Empty</span>;
     }
+
+    const displayedValue = isKeyDisplay && typeof value === 'string' ? formatLabel(value) : value;
 
     // handle primitive value change
     const handlePrimitiveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,12 +32,12 @@ export default function ComplexFieldRenderer({ value, depth = 0, onChange, isAno
 
     // primitive -> render input or masked span
     if (typeof value !== 'object') {
-        if (isAnonymized) return renderMasked(value);
+        if (isAnonymized) return renderMasked(displayedValue);
 
         return (
             <input
                 type="text"
-                value={value}
+                value={displayedValue}
                 onChange={handlePrimitiveChange}
                 className="bg-transparent border-b border-white/5 text-zinc-300 focus:text-white focus:border-red-500/50 focus:outline-none w-full min-w-[50px] transition-colors"
                 readOnly={!onChange}
@@ -66,7 +70,7 @@ export default function ComplexFieldRenderer({ value, depth = 0, onChange, isAno
                             <tr>
                                 {keys.map(key => (
                                     <th key={key} className="px-4 py-3 border-b border-white/5 whitespace-nowrap">
-                                        {key.replace(/_/g, ' ')}
+                                        {formatLabel(key)}
                                     </th>
                                 ))}
                             </tr>
@@ -80,6 +84,7 @@ export default function ComplexFieldRenderer({ value, depth = 0, onChange, isAno
                                                 value={row[key]}
                                                 depth={depth + 1}
                                                 isAnonymized={isAnonymized}
+                                                isKeyDisplay={key.toLowerCase().includes('campo') || key.toLowerCase().includes('label')}
                                                 onChange={(newVal) => {
                                                     const newRow = { ...row, [key]: newVal };
                                                     handleArrayItemChange(idx, newRow);
@@ -124,13 +129,14 @@ export default function ComplexFieldRenderer({ value, depth = 0, onChange, isAno
             {Object.entries(value).map(([key, val]) => (
                 <div key={key} className="flex flex-col gap-1">
                     <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">
-                        {key.replace(/_/g, ' ')}
+                        {formatLabel(key)}
                     </span>
                     <div className="text-sm">
                         <ComplexFieldRenderer
                             value={val}
                             depth={depth + 1}
                             isAnonymized={isAnonymized}
+                            isKeyDisplay={key.toLowerCase().includes('campo') || key.toLowerCase().includes('label')}
                             onChange={(newVal) => handleObjectKeyChange(key, newVal)}
                         />
                     </div>

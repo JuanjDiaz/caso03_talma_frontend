@@ -8,7 +8,61 @@ const UploadAirWaybill: React.FC = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
-    const [jsonContent, setJsonContent] = useState<string>('[\n  {\n    "numero": "123-45678901",\n    "intervinientes": [\n      {"nombre": "Sender Inc", "direccion": "Adress 1"},\n      {"nombre": "Receiver LLC", "direccion": "Address 2"}\n    ],\n    "origenCodigo": "MIA",\n    "destinoCodigo": "LIM",\n    "cantidadPiezas": 1,\n    "descripcionMercancia": "ELECTRONICS",\n    "pesoBruto": 10.5,\n    "tipoFleteCodigo": "P",\n    "monedaCodigo": "USD",\n    "fechaEmision": "2024-01-01T10:00:00"\n  }\n]');
+    const [jsonContent, setJsonContent] = useState<string>(`[
+  {
+    "numero": "200-88990011",
+    "fechaEmision": "2025-07-22T13:40:00",
+    "estadoGuiaCodigo": "REVISION_MANUAL",
+    "origenCodigo": "JAU",
+    "destinoCodigo": "CDG",
+    "transbordo": "MAD",
+    "aerolineaCodigo": "AF",
+    "numeroVuelo": "AF4832",
+    "fechaVuelo": "2025-07-24T00:55:00",
+    "descripcionMercancia": "Alimentos procesados enlatados",
+    "cantidadPiezas": 210,
+    "pesoBruto": 3650.00,
+    "pesoCobrado": 3605.00,
+    "unidadPesoCodigo": "KG",
+    "volumen": 19.30,
+    "naturalezaCargaCodigo": "GENERAL",
+    "valorDeclarado": 45800.00,
+    "tipoFleteCodigo": "PREPAGADO",
+    "tarifaFlete": 4980.00,
+    "otrosCargos": 520.00,
+    "monedaCodigo": "EUR",
+    "totalFlete": 5500.00,
+    "instruccionesEspeciales": "Evitar exposición prolongada al calor",
+    "observaciones": "Algunos campos requieren validación manual",
+    "intervinientes": [
+      {
+        "nombre": "Industrias Alimentarias del Centro S.A.",
+        "direccion": "Av. Producción 450",
+        "ciudad": "Huancayo",
+        "paisCodigo": "PE",
+        "telefono": "+51 964112233",
+        "tipoDocumentoCodigo": "RUC",
+        "numeroDocumento": "20901234567",
+        "tipoCodigo": "TPIN001"
+      },
+      {
+        "nombre": "Continental Food Traders SAS",
+        "direccion": "88 Rue du Commerce",
+        "ciudad": "Paris",
+        "paisCodigo": "FR",
+        "telefono": "+33 144556677",
+        "tipoDocumentoCodigo": "VAT_ID",
+        "numeroDocumento": "FR-55667788",
+        "tipoCodigo": "TPIN002"
+      }
+    ],
+    "confianzas": [
+      { "nombreCampo": "numero", "valorExtraido": "200-88990011", "confidenceModelo": 0.97 },
+      { "nombreCampo": "fechaEmision", "valorExtraido": "2025-07-22T13:40:00", "confidenceModelo": 0.95 },
+      { "nombreCampo": "remitente.nombre", "valorExtraido": "Industrias Alimentarias del Centro S.A.", "confidenceModelo": 0.96 }
+    ]
+  }
+]`);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {

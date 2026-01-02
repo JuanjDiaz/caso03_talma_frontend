@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { analysisService } from '../services/analysisService';
+import { formatLabel } from '@/lib/utils';
 import CryptoJS from 'crypto-js';
 
 export function useExtractEditor(initialResults: any[]) {
@@ -11,13 +12,21 @@ export function useExtractEditor(initialResults: any[]) {
             const initializedResults = initialResults.map(item => {
                 let fields: { label: string; value: any; section?: string }[] = [];
                 if (Array.isArray(item.fields)) {
-                    fields = [...item.fields];
+                    fields = item.fields.map((f: any) => ({
+                        ...f,
+                        label: formatLabel(f.label)
+                    }));
+                } else if (item.fields && typeof item.fields === 'object') {
+                    fields = Object.entries(item.fields).map(([key, value]) => ({
+                        label: formatLabel(key),
+                        value: value
+                    }));
                 } else if (item && typeof item === 'object') {
                     fields = Object.entries(item)
-                        .filter(([key]) => !['fileName', 'detectedType', 'confidence', 'id', 'fields', 'isEncrypted', 'isAnonymized'].includes(key))
+                        .filter(([key]) => !['fileName', 'detectedType', 'confidence', 'id', 'fields', 'isEncrypted', 'isAnonymized', 'document_index', 'document_name'].includes(key))
                         .map(([key, value]) => ({
-                            label: key.replace(/_/g, ' '),
-                            value: typeof value === 'object' ? JSON.stringify(value) : String(value)
+                            label: formatLabel(key),
+                            value: value
                         }));
                 }
                 const isEncrypted = item.isEncrypted || false;
