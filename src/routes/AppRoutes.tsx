@@ -13,6 +13,7 @@ import HomePage from '@/pages/home/HomePage';
 import ProtectedRoute from './ProtectedRoute';
 import AirWaybillRectifyList from '@/pages/air-waybills/AirWaybillRectifyList';
 import AirWaybillRectifyPage from '@/pages/air-waybills/AirWaybillRectifyPage';
+import DocumentsPage from '@/features/documents/pages/DocumentsPage';
 
 const AppRoutes = () => {
     return (
@@ -23,6 +24,7 @@ const AppRoutes = () => {
             <Route path="/verify-code" element={<VerifyCodePage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route element={<ProtectedRoute />}>
+                <Route path="/documents" element={<DocumentsPage />} />
                 <Route element={<MainLayout />}>
                     <Route path="/" element={<Navigate to="/home" replace />} />
                     <Route path="/home" element={<HomePage />} />

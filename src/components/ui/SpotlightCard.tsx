@@ -1,4 +1,4 @@
-import React, { useRef, useState, ReactNode, MouseEvent } from 'react';
+import { useRef, useState, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 interface SpotlightCardProps {
@@ -7,17 +7,17 @@ interface SpotlightCardProps {
     spotlightColor?: string;
 }
 
-const SpotlightCard: React.FC<SpotlightCardProps> = ({
+export default function SpotlightCard({
     children,
     className = "",
     spotlightColor = "rgba(237, 28, 36, 0.15)"
-}) => {
+}: SpotlightCardProps) {
     const divRef = useRef<HTMLDivElement>(null);
     const [isFocused, setIsFocused] = useState(false);
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [opacity, setOpacity] = useState(0);
 
-    const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!divRef.current || isFocused) return;
 
         const div = divRef.current;
@@ -67,6 +67,4 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
             <div className="relative h-full">{children}</div>
         </div>
     );
-};
-
-export default SpotlightCard;
+}
