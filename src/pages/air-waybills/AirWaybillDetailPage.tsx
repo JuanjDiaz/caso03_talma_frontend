@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Plane, User, Package, DollarSign,
-    FileText, ShieldCheck, MapPin
+    FileText, ShieldCheck, MapPin, AlertTriangle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { GuiaAereaDataGridResponse } from '../../services/documentService';
@@ -241,6 +241,50 @@ const AirWaybillDetailPage: React.FC = () => {
                 {/* Left Column (Main Info) */}
                 <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6 content-start">
 
+                    {/* 5. Observaciones adicionales - HIGHLIGHTED (Moved to 1st position) */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="md:col-span-2 bg-gradient-to-br from-yellow-500/10 to-orange-500/5 border border-yellow-500/30 rounded-2xl p-6 shadow-[0_0_15px_rgba(234,179,8,0.1)] relative overflow-hidden"
+                    >
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 blur-[50px] rounded-full pointer-events-none"></div>
+
+                        <div className="flex items-center gap-2 mb-6 text-yellow-500">
+                            <div className="p-2 bg-yellow-500/20 rounded-lg border border-yellow-500/30">
+                                <AlertTriangle size={20} />
+                            </div>
+                            <span className="text-sm font-bold uppercase tracking-widest text-yellow-400/90">Observaciones y Notas corrección</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+                            <div className="bg-black/40 p-5 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-colors group">
+                                <h4 className="text-xs font-bold text-yellow-500/80 mb-3 uppercase tracking-wider flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
+                                    Instrucciones Especiales
+                                </h4>
+                                <div className="text-sm text-gray-200 min-h-[60px] leading-relaxed font-medium">
+                                    {doc.instruccionesEspeciales ? (
+                                        doc.instruccionesEspeciales
+                                    ) : (
+                                        <span className="text-gray-600 italic font-normal">Sin instrucciones registradas</span>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="bg-black/40 p-5 rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-colors group">
+                                <h4 className="text-xs font-bold text-yellow-500/80 mb-3 uppercase tracking-wider flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
+                                    Observaciones Generales
+                                </h4>
+                                <div className="text-sm text-gray-200 min-h-[60px] leading-relaxed font-medium">
+                                    {doc.observaciones ? (
+                                        doc.observaciones
+                                    ) : (
+                                        <span className="text-gray-600 italic font-normal">Sin observaciones registradas</span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+
                     {/* 1. Información de Vuelo y Ruta */}
                     <div className="md:col-span-2">
                         <InfoCard title="Detalles del Vuelo Aéreo" icon={MapPin}>
@@ -287,28 +331,6 @@ const AirWaybillDetailPage: React.FC = () => {
                             </div>
                         </div>
                     </InfoCard>
-
-                    {/* 5. Observaciones adicionales */}
-                    <motion.div variants={itemVariants} className="md:col-span-2 bg-[#0F1115]/50 border border-white/5 rounded-2xl p-6">
-                        <div className="flex items-center gap-2 mb-4 opacity-50">
-                            <FileText size={16} />
-                            <span className="text-xs font-bold uppercase tracking-widest">Notas Adicionales</span>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h4 className="text-xs font-medium text-gray-400 mb-2 transform uppercase tracking-wider">Instrucciones Especiales</h4>
-                                <div className="bg-black/40 p-4 rounded-xl border border-white/5 text-sm text-gray-300 min-h-[60px] leading-relaxed">
-                                    {doc.instruccionesEspeciales || <span className="text-gray-600 italic">No registradas</span>}
-                                </div>
-                            </div>
-                            <div>
-                                <h4 className="text-xs font-medium text-gray-400 mb-2 transform uppercase tracking-wider">Observaciones Generales</h4>
-                                <div className="bg-black/40 p-4 rounded-xl border border-white/5 text-sm text-gray-300 min-h-[60px] leading-relaxed">
-                                    {doc.observaciones || <span className="text-gray-600 italic">No registradas</span>}
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
                 </div>
 
                 {/* Right Column (Details & Finance) */}

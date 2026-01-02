@@ -33,10 +33,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
 
     const toggleMenu = (label: string) => {
-        setExpandedMenus((prev) => ({
-            ...prev,
-            [label]: !prev[label],
-        }));
+        setExpandedMenus((prev) => {
+            const isCurrentlyOpen = !!prev[label];
+            // If currently open, toggle it off (resulting in empty object or just this one false)
+            // If currently closed, return new object with ONLY this one true (accordion behavior)
+            return isCurrentlyOpen ? { ...prev, [label]: false } : { [label]: true };
+        });
     };
 
     const handleLogout = () => {
