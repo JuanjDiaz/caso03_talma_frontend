@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GuiaAereaFiltroRequest } from '@/features/$(Split-Path (Split-Path AirWaybillSidePanel.tsx.Directory.Parent.FullName -Leaf) -Leaf)/services/documentService';
+import { GuiaAereaFiltroRequest } from '@/features/documents/services/documentService';
 
 interface AirWaybillSidePanelProps {
     isOpen: boolean;

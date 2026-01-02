@@ -6,7 +6,7 @@ import {
     MoreVertical, Eye, Activity
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { GuiaAereaDataGridResponse } from '@/features/$(Split-Path (Split-Path AirWaybillRectifyTable.tsx.Directory.Parent.FullName -Leaf) -Leaf)/services/documentService';
+import { GuiaAereaDataGridResponse } from '@/features/documents/services/documentService';
 
 interface AirWaybillRectifyTableProps {
     documents: GuiaAereaDataGridResponse[];

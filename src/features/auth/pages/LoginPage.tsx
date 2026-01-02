@@ -5,7 +5,7 @@ import { AuthLayout } from '../layouts/AuthLayout';
 import { AuthInput } from '../components/AuthInput';
 import { useAuthStore } from '@/store/useAuthStore';
 import StatusModal, { ModalType } from '@/components/StatusModal';
-import { AuthService } from '@/services/AuthService';
+import { AuthService } from '@/features/auth/services/AuthService';
 
 export default function LoginPage() {
     const navigate = useNavigate();

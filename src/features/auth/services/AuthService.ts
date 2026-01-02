@@ -5,9 +5,31 @@ export interface LoginResponse {
     token_type: string;
 }
 
+export interface UserLogin {
+    email: string;
+    password: string;
+}
+
+export interface UserResetPassword {
+    email: string;
+    code: string;
+    new_password: string;
+    confirm_password?: string;
+}
+
 export const AuthService = {
-    login: async (credentials: any): Promise<LoginResponse> => {
+    login: async (credentials: UserLogin): Promise<LoginResponse> => {
         const response = await api.post<LoginResponse>('/auth/login', credentials);
+        return response.data;
+    },
+
+    forgotPassword: async (email: string): Promise<any> => {
+        const response = await api.post<any>('/auth/forgot-password', { email });
+        return response.data;
+    },
+
+    verifyCode: async (email: string, code: string): Promise<any> => {
+        const response = await api.post<any>('/auth/verify-code', { email, code });
         return response.data;
     },
 

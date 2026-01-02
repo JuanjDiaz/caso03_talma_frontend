@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, AlertTriangle, RefreshCw, FileText } from 'lucide-react';
-import { GuiaAereaDataGridResponse } from '@/features/$(Split-Path (Split-Path ReprocessConfirmationModal.tsx.Directory.Parent.FullName -Leaf) -Leaf)/services/documentService';
+import { GuiaAereaDataGridResponse } from '@/features/documents/services/documentService';
 import { motion } from 'framer-motion';
 
 interface ReprocessConfirmationModalProps {

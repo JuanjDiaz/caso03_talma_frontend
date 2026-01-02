@@ -5,7 +5,7 @@ import { AuthLayout } from '../layouts/AuthLayout';
 import { AuthInput } from '../components/AuthInput';
 import StatusModal, { ModalType } from '@/components/StatusModal';
 import { useEffect } from 'react';
-import { AuthService } from '@/services/AuthService';
+import { AuthService } from '@/features/auth/services/AuthService';
 
 export default function ResetPasswordPage() {
     const navigate = useNavigate();

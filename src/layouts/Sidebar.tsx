@@ -9,7 +9,8 @@ import {
     ChevronRight,
     ChevronDown,
     LogOut,
-    AlertTriangle
+    AlertTriangle,
+    Upload
 } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 
@@ -52,6 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             icon: FileText,
             label: 'Guías aéreas',
             children: [
+                { icon: Upload, label: 'Carga', path: '/documents' },
                 { icon: BarChart3, label: 'Registros', path: '/air-waybills' },
                 { icon: AlertTriangle, label: 'Subsanar', path: '/air-waybills/rectify' },
             ],

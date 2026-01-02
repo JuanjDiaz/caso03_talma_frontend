@@ -11,7 +11,7 @@ interface FileUploadProps {
 export default function FileUpload({
     onFilesSelected,
     maxSizeInMB = 10,
-    acceptedFormats = ['.pdf', '.jpg', '.jpeg', '.png', '.xlsx', '.xls']
+    acceptedFormats = ['.pdf', '.jpg', '.jpeg', '.png', '.xlsx', '.xls', '.doc', '.docx']
 }: FileUploadProps) {
     const [isDragging, setIsDragging] = useState(false);
     const [showCamera, setShowCamera] = useState(false);
@@ -159,18 +159,27 @@ export default function FileUpload({
                     </div>
 
                     <h3 className="text-2xl font-light text-white mb-2">
-                        Upload Documents
+                        Subir Documentos
                     </h3>
                     <p className="text-zinc-500 text-sm mb-8 font-light tracking-wide cursor-default">
-                        <span className="text-red-500 underline underline-offset-4 decoration-red-500/30 group-hover:decoration-red-500 transition-all cursor-pointer">Browse</span>
-                        {' '}files or drag and drop
+                        <span className="text-tivit-red underline underline-offset-4 decoration-tivit-red/30 group-hover:decoration-tivit-red transition-all cursor-pointer font-medium">Explorar</span>
+                        {' '}archivos o arrastrar y soltar
                     </p>
 
                     {/* File Types Indicators */}
-                    <div className="flex gap-3 text-[10px] text-zinc-600 uppercase tracking-[0.2em] font-medium opacity-60 mt-8 cursor-default flex-wrap justify-center">
-                        <span className="border border-white/5 px-3 py-1.5 rounded-full flex items-center gap-1"><FileText className="w-3 h-3" /> PDF</span>
-                        <span className="border border-white/5 px-3 py-1.5 rounded-full flex items-center gap-1"><ImageIcon className="w-3 h-3" /> JPG/PNG</span>
-                        <span className="border border-white/5 px-3 py-1.5 rounded-full flex items-center gap-1"><FileSpreadsheet className="w-3 h-3" /> EXCEL</span>
+                    <div className="flex gap-3 text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-bold opacity-80 mt-8 cursor-default flex-wrap justify-center">
+                        <span className="bg-zinc-800/50 border border-white/5 px-4 py-2 rounded-full flex items-center gap-2 transition-colors group-hover:bg-zinc-800">
+                            <FileText size={14} className="text-zinc-400" />
+                            PDF / WORD
+                        </span>
+                        <span className="bg-zinc-800/50 border border-white/5 px-4 py-2 rounded-full flex items-center gap-2 transition-colors group-hover:bg-zinc-800">
+                            <ImageIcon size={14} className="text-zinc-400" />
+                            JPG / PNG
+                        </span>
+                        <span className="bg-zinc-800/50 border border-white/5 px-4 py-2 rounded-full flex items-center gap-2 transition-colors group-hover:bg-zinc-800">
+                            <FileSpreadsheet size={14} className="text-zinc-400" />
+                            EXCEL
+                        </span>
                     </div>
                 </div>
 

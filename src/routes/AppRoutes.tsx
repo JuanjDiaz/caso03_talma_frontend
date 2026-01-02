@@ -24,10 +24,10 @@ const AppRoutes = () => {
             <Route path="/verify-code" element={<VerifyCodePage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route element={<ProtectedRoute />}>
-                <Route path="/documents" element={<DocumentsPage />} />
                 <Route element={<MainLayout />}>
                     <Route path="/" element={<Navigate to="/home" replace />} />
                     <Route path="/home" element={<HomePage />} />
+                    <Route path="/documents" element={<DocumentsPage />} />
 
                     <Route path="/users/create" element={<CreateUser />} />
                     <Route path="/users/edit/:id" element={<CreateUser />} />

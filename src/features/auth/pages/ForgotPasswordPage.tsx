@@ -3,13 +3,14 @@ import { Mail, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { AuthInput } from '../components/AuthInput';
-import { useAuthStore } from '../store/authStore';
+import { useAuthStore } from '@/store/useAuthStore';
+import { AuthService } from '@/features/auth/services/AuthService';
 import StatusModal, { ModalType } from '@/components/StatusModal';
 
 export default function ForgotPasswordPage() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
-    const forgotPassword = useAuthStore(state => state.forgotPassword);
+    const setLoading = useAuthStore(state => state.setLoading);
     const isLoading = useAuthStore(state => state.isLoading);
 
     const [modalConfig, setModalConfig] = useState<{
@@ -38,9 +39,12 @@ export default function ForgotPasswordPage() {
         }
 
         try {
-            await forgotPassword(email);
+            setLoading(true);
+            await AuthService.forgotPassword(email);
+            setLoading(false);
             navigate('/verify-code', { state: { email } });
         } catch (error: any) {
+            setLoading(false);
             const errorMessage = error.response?.data?.detail || '';
 
             let title = 'Error';

@@ -3,8 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import FileUpload from '../components/FileUpload';
 import ResultsBoard from '../components/ResultsBoard';
 import { useDocuments } from '../hooks/useDocuments';
-import { ArrowLeft, AlertCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { AlertCircle } from 'lucide-react';
 
 export default function DocumentsPage() {
     const { status, results, error, thinking, handleUpload, resetUpload } = useDocuments();
@@ -22,33 +21,22 @@ export default function DocumentsPage() {
     }, [thinking]);
 
     return (
-        <div className="min-h-screen bg-black text-white p-6 md:p-12 font-sans relative overflow-hidden">
-
-            {/* Background Elements */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-                <div className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] bg-tivit-red/10 rounded-full blur-[120px]"></div>
-                <div className="absolute top-[40%] -left-[10%] w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-[100px]"></div>
-            </div>
-
-            <div className="relative z-10 max-w-5xl mx-auto">
-                <header className="mb-12 flex items-center justify-between">
-                    <Link to="/" className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors group">
-                        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                        <span>Back via Home</span>
-                    </Link>
+        <div className="relative font-sans h-full">
+            <div className="relative z-10 max-w-5xl mx-auto pt-4">
+                <header className="mb-8 flex items-center justify-end">
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                         <span className="text-xs uppercase tracking-widest text-zinc-500 font-bold">Secure Upload</span>
                     </div>
                 </header>
 
-                <div className="text-center mb-8">
+                <div className="text-center mb-12">
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-zinc-500"
+                        className="text-4xl md:text-6xl font-bold mb-6 text-white"
                     >
-                        Document Analysis
+                        Análisis de Documentos
                     </motion.h1>
                     <AnimatePresence>
                         {status === 'idle' && (
@@ -58,7 +46,7 @@ export default function DocumentsPage() {
                                 exit={{ opacity: 0, height: 0 }}
                                 className="text-zinc-400 text-lg max-w-xl mx-auto font-light"
                             >
-                                Upload your PDF, Image, or Excel files. Our system will validate and process them securely.
+                                Sube tus archivos PDF, Imágenes o Excel. Nuestro sistema los validará y procesará de forma segura.
                             </motion.p>
                         )}
                     </AnimatePresence>

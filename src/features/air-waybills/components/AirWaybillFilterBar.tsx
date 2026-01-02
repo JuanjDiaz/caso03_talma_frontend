@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus, Search, Filter, ChevronDown, RefreshCw } from 'lucide-react';
-import { GuiaAereaFiltroRequest } from '@/features/$(Split-Path (Split-Path AirWaybillFilterBar.tsx.Directory.Parent.FullName -Leaf) -Leaf)/services/documentService';
+import { GuiaAereaFiltroRequest } from '@/features/documents/services/documentService';
 
 interface AirWaybillFilterBarProps {
     filters: GuiaAereaFiltroRequest;

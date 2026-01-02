@@ -1,15 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../layouts/AuthLayout';
-import { useAuthStore } from '../store/authStore';
+import { useAuthStore } from '@/store/useAuthStore';
+import { AuthService } from '@/features/auth/services/AuthService';
 import StatusModal, { ModalType } from '@/components/StatusModal';
 
 export default function VerifyCodePage() {
     const navigate = useNavigate();
     const location = useLocation();
     const email = location.state?.email || 'j*****@gmail.com';
-    const verifyCode = useAuthStore(state => state.verifyCode);
-    const forgotPassword = useAuthStore(state => state.forgotPassword);
+    const setLoading = useAuthStore(state => state.setLoading);
     const isLoading = useAuthStore(state => state.isLoading);
 
     const [code, setCode] = useState<string[]>(Array(6).fill(''));
@@ -57,7 +57,9 @@ export default function VerifyCodePage() {
         const fullCode = code.join('');
         if (fullCode.length === 6) {
             try {
-                await verifyCode(email, fullCode);
+                setLoading(true);
+                await AuthService.verifyCode(email, fullCode);
+                setLoading(false);
                 navigate('/reset-password', { state: { email, code: fullCode } });
             } catch (error: any) {
                 const errorMessage = error.response?.data?.detail || '';
@@ -106,7 +108,9 @@ export default function VerifyCodePage() {
         if (timer > 0 || isLoading) return;
 
         try {
-            await forgotPassword(email);
+            setLoading(true);
+            await AuthService.forgotPassword(email);
+            setLoading(false);
             setTimer(60);
             setModalConfig({
                 isOpen: true,
