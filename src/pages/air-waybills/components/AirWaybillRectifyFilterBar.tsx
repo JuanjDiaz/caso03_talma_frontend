@@ -1,25 +1,23 @@
 import React from 'react';
-import { Plus, Search, Filter, ChevronDown, RefreshCw } from 'lucide-react';
+import { Search, Filter, ChevronDown, RefreshCw } from 'lucide-react';
 import { GuiaAereaFiltroRequest } from '../../../services/documentService';
 
-interface AirWaybillFilterBarProps {
+interface AirWaybillRectifyFilterBarProps {
     filters: GuiaAereaFiltroRequest;
     onSearch: (e: React.FormEvent<HTMLFormElement>) => void;
     onFilterChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
     onLimitChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
     onOpenSidePanel: () => void;
-    onCreate: () => void;
-    onRefresh: () => void;
     totalRecords?: number;
+    onRefresh: () => void;
 }
 
-const AirWaybillFilterBar: React.FC<AirWaybillFilterBarProps> = ({
+const AirWaybillRectifyFilterBar: React.FC<AirWaybillRectifyFilterBarProps> = ({
     filters,
     onSearch,
     onFilterChange,
     onLimitChange,
     onOpenSidePanel,
-    onCreate,
     onRefresh
 }) => {
     return (
@@ -58,14 +56,6 @@ const AirWaybillFilterBar: React.FC<AirWaybillFilterBarProps> = ({
 
             <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                 <button
-                    onClick={onCreate}
-                    className="flex items-center gap-2 bg-tivit-red hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all font-medium text-sm whitespace-nowrap"
-                >
-                    <Plus className="w-4 h-4" />
-                    Nuevo
-                </button>
-
-                <button
                     type="button"
                     onClick={onOpenSidePanel}
                     className="px-4 py-2 bg-[#1E1E24] hover:bg-[#25252D] text-gray-200 rounded-lg border border-[#2A2830] transition-all text-sm font-medium flex items-center gap-2 whitespace-nowrap"
@@ -87,4 +77,4 @@ const AirWaybillFilterBar: React.FC<AirWaybillFilterBarProps> = ({
     );
 };
 
-export default AirWaybillFilterBar;
+export default AirWaybillRectifyFilterBar;

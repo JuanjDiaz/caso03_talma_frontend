@@ -1,23 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
     Edit2, Plane, CheckCircle, XCircle, AlertTriangle, ShieldCheck,
-    MoreVertical, Eye, Download, Send, Activity, RefreshCw
+    MoreVertical, Eye, Activity
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { GuiaAereaDataGridResponse } from '../../../services/documentService';
 
-interface AirWaybillTableProps {
+interface AirWaybillRectifyTableProps {
     documents: GuiaAereaDataGridResponse[];
     loading: boolean;
-    onEdit?: (doc: GuiaAereaDataGridResponse) => void;
-    viewCode?: string;
+    onEdit: (doc: GuiaAereaDataGridResponse) => void;
 }
 
-const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, onEdit, viewCode = 'VC001' }) => {
+const AirWaybillRectifyTable: React.FC<AirWaybillRectifyTableProps> = ({ documents, loading, onEdit }) => {
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
-    const menuRef = useRef<HTMLDivElement>(null);
+
+    const navigate = useNavigate();
 
     // Close menu on scroll or resize
     useEffect(() => {
@@ -30,23 +31,7 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
         };
     }, []);
 
-    // Close menu when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setOpenMenuId(null);
-                setMenuPosition(null); // Also reset position when clicking outside
-            }
-        };
 
-        if (openMenuId) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [openMenuId]);
 
     const toggleMenu = (e: React.MouseEvent<HTMLButtonElement>, id: string) => {
         e.stopPropagation();
@@ -56,40 +41,38 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
         } else {
             const rect = e.currentTarget.getBoundingClientRect();
             setOpenMenuId(id);
-            // Position menu below the button, aligned to the right
             setMenuPosition({
                 top: rect.bottom + 5,
-                left: rect.right - 180 // appx Width of menu
+                left: rect.right - 180
             });
         }
     };
 
-    const navigate = useNavigate();
-
-    // ... (menu logic)
-
     const handleAction = (action: string, doc: GuiaAereaDataGridResponse) => {
         setOpenMenuId(null);
-        console.log(`Action: ${action} on doc: ${doc.numero}`);
 
         if (action === 'view') {
             navigate(`/air-waybills/view/${doc.guiaAereaId}`, { state: { doc } });
             return;
         }
 
-        if (onEdit) {
+        if (action === 'reprocess') {
             onEdit(doc);
+        }
+
+        if (action === 'traceability') {
+            console.log("Traceability for", doc.numero);
         }
     };
 
     const getCycleBadge = (code?: string) => {
         const styles: Record<string, string> = {
-            "ESTGA001": "bg-blue-500/10 text-blue-400 border-blue-500/20", // PROCESANDO
-            "ESTGA002": "bg-yellow-500/10 text-yellow-400 border-yellow-500/20", // OBSERVADO
-            "ESTGA003": "bg-indigo-500/10 text-indigo-400 border-indigo-500/20", // PROCESADO
-            "ESTGA004": "bg-purple-500/10 text-purple-400 border-purple-500/20", // ENVIADO
-            "ESTGA005": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", // ACEPTADO
-            "ESTGA006": "bg-red-500/10 text-red-400 border-red-500/20",     // RECHAZADO
+            "ESTGA001": "bg-blue-500/10 text-blue-400 border-blue-500/20",
+            "ESTGA002": "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+            "ESTGA003": "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+            "ESTGA004": "bg-purple-500/10 text-purple-400 border-purple-500/20",
+            "ESTGA005": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+            "ESTGA006": "bg-red-500/10 text-red-400 border-red-500/20",
         };
 
         const labels: Record<string, string> = {
@@ -113,10 +96,7 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
 
     const getConfidenceBadge = (pctString?: string) => {
         if (!pctString) return <span className="text-gray-500">-</span>;
-
-        // Remove % and parse
         const val = parseFloat(pctString.replace('%', ''));
-
         let colorClass = "text-gray-400";
         let Icon = ShieldCheck;
 
@@ -249,18 +229,8 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
 
                                         <td className="px-3 py-2 text-right whitespace-nowrap">
                                             <div className="flex justify-end gap-2 items-center">
-                                                {/* Restore Edit Button */}
-                                                {onEdit && (
-                                                    <button
-                                                        onClick={() => onEdit(doc)}
-                                                        className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                                                        title="Ver detalles"
-                                                    >
-                                                        <Edit2 size={16} />
-                                                    </button>
-                                                )}
 
-                                                {/* Restore Status Button */}
+
                                                 <button
                                                     className={`p-2 rounded-lg transition-all cursor-default ${doc.habilitado
                                                         ? 'text-green-500 hover:bg-green-500/10 hover:text-green-400'
@@ -272,7 +242,6 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
                                                     <XCircle size={16} className={!doc.habilitado ? "" : "hidden"} />
                                                 </button>
 
-                                                {/* Dropdown Menu Trigger */}
                                                 <button
                                                     onClick={(e) => toggleMenu(e, doc.guiaAereaId || String(index))}
                                                     className={`p-2 rounded-lg transition-all ${openMenuId === (doc.guiaAereaId || String(index))
@@ -291,8 +260,8 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
                 </div>
             </motion.div>
 
-            {/* Render Dropdown outside the table using Fixed Position */}
-            {openMenuId && menuPosition && (
+            {/* Render Dropdown using Portal to escape parent stacking contexts/transforms */}
+            {openMenuId && menuPosition && createPortal(
                 <>
                     <div
                         className="fixed inset-0 z-[60]"
@@ -307,14 +276,12 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
                         }}
                     >
                         <div className="py-1">
-                            {/* Retrieve the document associated with the open menu */}
                             {(() => {
                                 const doc = documents.find((d, i) => (d.guiaAereaId || String(i)) === openMenuId);
                                 if (!doc) return null;
 
                                 return (
                                     <>
-                                        {/* Common Action: View */}
                                         <button
                                             onClick={() => handleAction('view', doc)}
                                             className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1E1E24] hover:text-white flex items-center gap-2 transition-colors"
@@ -323,38 +290,14 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
                                             Visualizar
                                         </button>
 
-                                        {/* Actions for REGISTROS (VC001) */}
-                                        {viewCode === 'VC001' && (
-                                            <>
-                                                <button
-                                                    onClick={() => handleAction('download', doc)}
-                                                    className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1E1E24] hover:text-white flex items-center gap-2 transition-colors"
-                                                >
-                                                    <Download size={14} className="text-gray-500" />
-                                                    Descargar
-                                                </button>
-                                                <button
-                                                    onClick={() => handleAction('send', doc)}
-                                                    className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1E1E24] hover:text-white flex items-center gap-2 transition-colors"
-                                                >
-                                                    <Send size={14} className="text-gray-500" />
-                                                    Enviar
-                                                </button>
-                                            </>
-                                        )}
+                                        <button
+                                            onClick={() => handleAction('reprocess', doc)}
+                                            className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1E1E24] hover:text-white flex items-center gap-2 transition-colors"
+                                        >
+                                            <Edit2 size={14} className="text-gray-500" />
+                                            Editar
+                                        </button>
 
-                                        {/* Actions for SUBSANAR (VC002) */}
-                                        {viewCode === 'VC002' && (
-                                            <button
-                                                onClick={() => handleAction('reprocess', doc)}
-                                                className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1E1E24] hover:text-white flex items-center gap-2 transition-colors"
-                                            >
-                                                <RefreshCw size={14} className="text-gray-500" />
-                                                Reprocesar
-                                            </button>
-                                        )}
-
-                                        {/* Common Action: Traceability */}
                                         <button
                                             onClick={() => handleAction('traceability', doc)}
                                             className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1E1E24] hover:text-white flex items-center gap-2 transition-colors"
@@ -367,10 +310,11 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
                             })()}
                         </div>
                     </div>
-                </>
+                </>,
+                document.body
             )}
         </>
     );
 };
 
-export default AirWaybillTable;
+export default AirWaybillRectifyTable;

@@ -73,7 +73,86 @@ export interface BaseOperacionResponse {
     mensaje: string;
 }
 
+
+export interface GuiaAereaIntervinienteResponse {
+    guiaAereaIntervinienteId?: string;
+    guiaAereaId?: string;
+    intervinienteId?: string;
+    rolCodigo?: string;
+    nombre?: string;
+    confidenceNombre?: number;
+    direccion?: string;
+    confidenceDireccion?: number;
+    ciudad?: string;
+    confidenceCiudad?: number;
+    paisCodigo?: string;
+    confidencePaisCodigo?: number;
+    telefono?: string;
+    confidenceTelefono?: number;
+    tipoDocumentoCodigo?: string;
+    confidenceTipoDocumentoCodigo?: number;
+    numeroDocumento?: string;
+    confidenceNumeroDocumento?: number;
+}
+
+export interface GuiaAereaResponse {
+    guiaAereaId?: string;
+    numero?: string;
+    confidenceNumero?: number;
+    tipoCodigo?: string;
+    fechaEmision?: string;
+    confidenceFechaEmision?: number;
+    origenCodigo?: string;
+    confidenceOrigenCodigo?: number;
+    destinoCodigo?: string;
+    confidenceDestinoCodigo?: number;
+    transbordo?: string;
+    confidenceTransbordo?: number;
+    aerolineaCodigo?: string;
+    confidenceAerolineaCodigo?: number;
+    numeroVuelo?: string;
+    confidenceNumeroVuelo?: number;
+    fechaVuelo?: string;
+    confidenceFechaVuelo?: number;
+    descripcionMercancia?: string;
+    confidenceDescripcionMercancia?: number;
+    cantidadPiezas?: number;
+    confidenceCantidadPiezas?: number;
+    pesoBruto?: number;
+    confidencePesoBruto?: number;
+    pesoCobrado?: number;
+    confidencePesoCobrado?: number;
+    unidadPesoCodigo?: string;
+    confidenceUnidadPesoCodigo?: number;
+    volumen?: number;
+    confidenceVolumen?: number;
+    naturalezaCargaCodigo?: string;
+    confidenceNaturalezaCargaCodigo?: number;
+    valorDeclarado?: number;
+    confidenceValorDeclarado?: number;
+    tipoFleteCodigo?: string;
+    confidenceTipoFleteCodigo?: number;
+    tarifaFlete?: number;
+    confidenceTarifaFlete?: number;
+    otrosCargos?: number;
+    confidenceOtrosCargos?: number;
+    monedaCodigo?: string;
+    confidenceMonedaCodigo?: number;
+    totalFlete?: number;
+    confidenceTotalFlete?: number;
+    instruccionesEspeciales?: string;
+    confidenceInstruccionesEspeciales?: number;
+    observaciones?: string;
+    confidenceTotal?: number;
+    intervinientesValidos?: GuiaAereaIntervinienteResponse[];
+}
+
 export const DocumentService = {
+
+    get: async (id: string): Promise<GuiaAereaResponse> => {
+        const response = await api.get<GuiaAereaResponse>(`/document/get/${id}`);
+        return response.data;
+    },
 
     saveOrUpdate: async (formData: FormData): Promise<BaseOperacionResponse> => {
         const response = await api.post<BaseOperacionResponse>('/document/saveOrUpdate', formData, {
@@ -96,5 +175,10 @@ export const DocumentService = {
             data: response.data.elements || [],
             total: response.data.totalCount || 0
         };
+    },
+
+    reprocess: async (documentId: string): Promise<BaseOperacionResponse> => {
+        const response = await api.post<BaseOperacionResponse>(`/document/reprocess/${documentId}`);
+        return response.data;
     }
 };

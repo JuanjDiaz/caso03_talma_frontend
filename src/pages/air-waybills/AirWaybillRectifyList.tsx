@@ -1,22 +1,33 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { DocumentService, GuiaAereaDataGridResponse, GuiaAereaFiltroRequest } from '../../services/documentService';
-import AirWaybillTable from './components/AirWaybillTable';
-import AirWaybillFilterBar from './components/AirWaybillFilterBar';
+import AirWaybillRectifyTable from './components/AirWaybillRectifyTable';
+import AirWaybillRectifyFilterBar from './components/AirWaybillRectifyFilterBar';
 import AirWaybillSidePanel from './components/AirWaybillSidePanel';
 import AirWaybillListPagination from './components/AirWaybillListPagination';
+import SuccessModal from '../../components/SuccessModal';
+import ReprocessConfirmationModal from './components/ReprocessConfirmationModal';
 
+const AirWaybillRectifyList: React.FC = () => {
+    // Hardcoded for Rectify View
+    const pageTitle = "Subsanación de Guías";
+    const viewCode = "VC002";
 
-const AirWaybillList: React.FC = () => {
     const navigate = useNavigate();
-    const pageTitle = "Gestión de Guías Aéreas";
-    const viewCode = "VC001";
-
     const [documents, setDocuments] = useState<GuiaAereaDataGridResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [totalRecords, setTotalRecords] = useState(0);
 
+    // Modal States
+    const [reprocessModalOpen, setReprocessModalOpen] = useState(false);
+    const [successModalOpen, setSuccessModalOpen] = useState(false);
+    const [selectedDoc, setSelectedDoc] = useState<GuiaAereaDataGridResponse | null>(null);
+    const [reprocessLoading, setReprocessLoading] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
+
+    // Initial state for filters
     const [filters, setFilters] = useState<GuiaAereaFiltroRequest>({
         start: 0,
         limit: 8,
@@ -53,6 +64,7 @@ const AirWaybillList: React.FC = () => {
         }
     };
 
+    // Fetch on filter change with debounce
     useEffect(() => {
         const timer = setTimeout(() => {
             fetchDocuments();
@@ -63,6 +75,7 @@ const AirWaybillList: React.FC = () => {
         filters.start,
         filters.limit,
         filters.palabraClave,
+        // filters.vistaCodigo is constant here
         filters.origenCodigo,
         filters.destinoCodigo,
         filters.nombreRemitente,
@@ -101,14 +114,37 @@ const AirWaybillList: React.FC = () => {
         setIsFilterOpen(false);
     };
 
-    const handleCreate = () => {
-        navigate('/air-waybills/upload');
-    };
-
     const handleRefresh = () => {
         setRefreshTrigger(prev => prev + 1);
     };
 
+    const handleEdit = (doc: GuiaAereaDataGridResponse) => {
+        navigate('/air-waybills/rectify/edit', { state: { doc } });
+    };
+
+    const handleConfirmReprocess = async () => {
+        if (!selectedDoc?.guiaAereaId) return;
+        setReprocessLoading(true);
+        try {
+            const res = await DocumentService.reprocess(selectedDoc.guiaAereaId);
+            setReprocessModalOpen(false);
+            setSuccessMessage(res.mensaje || "El documento ha sido enviado a reprocesamiento exitosamente.");
+            setSuccessModalOpen(true);
+            fetchDocuments();
+        } catch (e) {
+            console.error("Error reprocessing:", e);
+        } finally {
+            setReprocessLoading(false);
+        }
+    };
+
+    const handleCloseSuccess = () => {
+        setSuccessModalOpen(false);
+        setSuccessMessage("");
+        setSelectedDoc(null);
+    };
+
+    // Pagination Calculations
     const currentLimit = filters.limit || 8;
     const currentPage = Math.floor((filters.start || 0) / currentLimit) + 1;
     const totalPages = Math.ceil(totalRecords / currentLimit);
@@ -133,29 +169,24 @@ const AirWaybillList: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div>
                     <h1 className="text-2xl font-medium text-white mb-1">{pageTitle}</h1>
-                    <p className="text-xs font-medium text-gray-300 tracking-wide">Consulta y gestión de documentos registrados</p>
+                    <p className="text-xs font-medium text-gray-300 tracking-wide">Gestión y corrección de documentos observados</p>
                 </div>
             </div>
 
-            <AirWaybillFilterBar
+            <AirWaybillRectifyFilterBar
                 filters={filters}
                 onSearch={handleSearch}
                 onFilterChange={handleFilterChange}
                 onLimitChange={handleLimitChange}
                 onOpenSidePanel={() => setIsFilterOpen(true)}
-                onCreate={handleCreate}
                 onRefresh={handleRefresh}
                 totalRecords={totalRecords}
             />
 
-            <AirWaybillTable
+            <AirWaybillRectifyTable
                 documents={documents}
                 loading={loading}
-                // Registros is read-only usually, but if we want 'View' details we can add logic.
-                // Original logic was: onEdit={viewCode === 'VC001' ? undefined : handleEdit}
-                // So for VC001 it was undefined.
-                onEdit={undefined}
-                viewCode={viewCode}
+                onEdit={handleEdit}
             />
 
             <AirWaybillListPagination
@@ -166,8 +197,23 @@ const AirWaybillList: React.FC = () => {
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
             />
+
+            <ReprocessConfirmationModal
+                isOpen={reprocessModalOpen}
+                onClose={() => setReprocessModalOpen(false)}
+                onConfirm={handleConfirmReprocess}
+                document={selectedDoc}
+                loading={reprocessLoading}
+            />
+
+            <SuccessModal
+                isOpen={successModalOpen}
+                onClose={handleCloseSuccess}
+                title="Reprocesamiento Iniciado"
+                message={successMessage}
+            />
         </div>
     );
 };
 
-export default AirWaybillList;
+export default AirWaybillRectifyList;

@@ -7,10 +7,10 @@ const MainLayout: React.FC = () => {
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
     return (
-        
+
         <div className="min-h-screen bg-tivit-dark text-gray-100 font-sans selection:bg-tivit-red/30 flex flex-col">
             {/* Background Gradients */}
-         
+
 
             {/* Header (Full Width) */}
             <Header onMenuClick={() => setIsSidebarOpen(true)} />
@@ -21,7 +21,7 @@ const MainLayout: React.FC = () => {
                 <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
                 {/* Main Content */}
-                <div className="flex-1 w-full lg:ml-64 relative z-10 p-4 lg:p-8 ">
+                <div className="flex-1 min-w-0 lg:ml-64 relative z-10 p-4 lg:p-8 ">
                     <Outlet />
                 </div>
             </div>
