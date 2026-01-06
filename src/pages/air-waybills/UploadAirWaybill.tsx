@@ -111,7 +111,7 @@ const UploadAirWaybill: React.FC = () => {
                 // -------------------------------------------------------------
 
                 // Helper to update specific file by name
-                const updateFileStatus = (keyword: string, newStatus: FileStatus, progress: number, customMsg?: string) => {
+                const updateFileStatus = (newStatus: FileStatus, progress: number, customMsg?: string) => {
                     setFiles(prev => prev.map(f => {
                         if (msg.includes(f.file.name)) {
                             return {
@@ -137,19 +137,19 @@ const UploadAirWaybill: React.FC = () => {
                 else if (event.type === 'thinking') {
                     // NEW: Detailed Backend Messages
                     if (msgLower.includes("vectorizando contenido")) {
-                        updateFileStatus("vectorizando", 'scanning', 20, "Vectorizando contenido...");
+                        updateFileStatus('scanning', 20, "Vectorizando contenido...");
                     }
                     else if (msgLower.includes("preparado para análisis")) {
-                        updateFileStatus("preparado", 'scanning', 40, "Preparado para análisis neural");
+                        updateFileStatus('scanning', 40, "Preparado para análisis neural");
                     }
                     else if (msgLower.includes("entidades extraídas")) {
-                        updateFileStatus("entidades", 'analyzing', 70, "Entidades extraídas con IA");
+                        updateFileStatus('analyzing', 70, "Entidades extraídas con IA");
                     }
                     else if (msgLower.includes("validando confianza")) {
-                        updateFileStatus("confianza", 'analyzing', 85, "Validando confianza de datos...");
+                        updateFileStatus('analyzing', 85, "Validando confianza de datos...");
                     }
                     else if (msgLower.includes("sincronizando") && !msgLower.includes("todos")) {
-                        updateFileStatus("sincronizando", 'saving', 95, "Sincronizando con Base de Datos...");
+                        updateFileStatus('saving', 95, "Sincronizando con Base de Datos...");
                     }
                 }
 
@@ -169,7 +169,7 @@ const UploadAirWaybill: React.FC = () => {
     };
 
     // --- RENDER HELPERS ---
-    const getStatusLabel = (status: FileStatus, progress: number, customMessage?: string) => {
+    const getStatusLabel = (status: FileStatus, customMessage?: string) => {
         // PRIORITIZE BACKEND MESSAGE IF AVAILABLE
         if (customMessage && status !== 'invalid') return customMessage;
 
@@ -211,7 +211,7 @@ const UploadAirWaybill: React.FC = () => {
     };
 
     return (
-        <div className="w-full min-h-[calc(100vh-8rem)] font-nunito flex flex-col items-center justify-center p-6 relative overflow-hidden text-white"
+        <div className="w-full min-h-[calc(100vh-6rem)] lg:min-h-[calc(100vh-4rem)] font-nunito flex flex-col items-center justify-center p-4 lg:p-2 relative overflow-hidden text-white"
             style={{ maskImage: 'radial-gradient(circle at center, black 60%, transparent 100%)', WebkitMaskImage: 'radial-gradient(circle at center, black 60%, transparent 100%)' }}>
 
             {/* --- HOLOGRAPHIC BACKGROUND (RED THEME) --- */}
@@ -231,11 +231,11 @@ const UploadAirWaybill: React.FC = () => {
 
                 {/* HEADER */}
                 <motion.div
-                    className="mb-10 text-center"
+                    className="mb-6 lg:mb-4 text-center"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                 >
-                    <h1 className="text-5xl font-bold tracking-tighter mb-2 flex items-center justify-center gap-3">
+                    <h1 className="text-3xl lg:text-5xl font-bold tracking-tighter mb-2 flex items-center justify-center gap-3">
                         <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 via-orange-500 to-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]">
                             Carga Inteligente de Guías Aéreas
                         </span>
@@ -247,13 +247,13 @@ const UploadAirWaybill: React.FC = () => {
                     layout
                     className={`
                         w-full backdrop-blur-2xl rounded-3xl border transition-all duration-700 relative overflow-hidden flex flex-col md:flex-row
-                        ${phase === 'idle' ? 'bg-gray-900/40 border-white/5 max-w-2xl min-h-[400px]' : 'bg-black/60 border-gray-800 max-w-6xl min-h-[600px]'}
+                        ${phase === 'idle' ? 'bg-gray-900/40 border-white/5 max-w-2xl min-h-[350px] lg:min-h-[320px]' : 'bg-black/60 border-gray-800 max-w-6xl min-h-[450px] lg:min-h-[500px]'}
                         ${SHADOW_COLOR[phase]} shadow-2xl
                     `}
                 >
 
                     {/* === LEFT PANEL: VISUALIZATION / DROPZONE === */}
-                    <div className={`p-8 flex flex-col items-center justify-center relative transition-all duration-500 ${phase === 'idle' ? 'w-full' : 'w-full md:w-1/3 border-r border-gray-800'}`}>
+                    <div className={`p-4 lg:p-6 flex flex-col items-center justify-center relative transition-all duration-500 ${phase === 'idle' ? 'w-full' : 'w-full md:w-1/3 border-r border-gray-800'}`}>
 
                         <AnimatePresence mode="wait">
                             {phase === 'idle' ? (
@@ -268,14 +268,14 @@ const UploadAirWaybill: React.FC = () => {
                                         onDragLeave={handleDragLeave}
                                         onDrop={handleDrop}
                                         className={`
-                                            group cursor-pointer relative w-64 h-64 rounded-full border-2 border-dashed flex flex-col items-center justify-center transition-all duration-500
+                                            group cursor-pointer relative w-40 h-40 lg:w-56 lg:h-56 rounded-full border-2 border-dashed flex flex-col items-center justify-center transition-all duration-500 mx-auto
                                             ${isDragging ? 'border-red-500 bg-red-500/10 scale-110' : 'border-gray-700 hover:border-red-500/50 hover:bg-gray-800/30'}
                                         `}
                                     >
                                         <div className={`absolute inset-0 rounded-full border border-red-500/30 scale-110 opacity-0 group-hover:opacity-100 group-hover:scale-100 transition-all duration-700 animate-[spin_10s_linear_infinite] pointer-events-none`} />
                                         <div className={`absolute inset-0 rounded-full border border-orange-500/30 scale-125 opacity-0 group-hover:opacity-100 group-hover:scale-100 transition-all duration-700 delay-100 animate-[spin_15s_linear_infinite_reverse] pointer-events-none`} />
-                                        <UploadCloud size={64} className="text-gray-400 group-hover:text-red-500 transition-colors duration-300 transform group-hover:-translate-y-2 pointer-events-none" />
-                                        <span className="text-gray-400 group-hover:text-white mt-4 font-medium transition-colors pointer-events-none">Arrastra archivos aquí</span>
+                                        <UploadCloud className="w-12 h-12 lg:w-16 lg:h-16 text-gray-400 group-hover:text-red-500 transition-colors duration-300 transform group-hover:-translate-y-2 pointer-events-none" />
+                                        <span className="text-gray-400 group-hover:text-white mt-4 font-medium transition-colors pointer-events-none text-center px-4">Arrastra archivos aquí</span>
                                     </div>
                                     <input
                                         type="file"
@@ -286,7 +286,7 @@ const UploadAirWaybill: React.FC = () => {
                                         onChange={handleFileSelect}
                                         onClick={(e) => (e.currentTarget.value = '')}
                                     />
-                                    <div className="mt-8 flex flex-col items-center w-full max-w-md">
+                                    <div className="mt-6 flex flex-col items-center w-full max-w-md">
                                         {files.length > 0 && (
                                             <>
                                                 <motion.button
@@ -325,8 +325,8 @@ const UploadAirWaybill: React.FC = () => {
                                     className="relative w-full h-full flex items-center justify-center min-h-[300px]"
                                 >
                                     {/* Holographic Ring */}
-                                    <div className={`absolute w-64 h-64 rounded-full border-4 border-dotted opacity-30 animate-[spin_8s_linear_infinite] ${phase === 'scanning' ? 'border-red-500' : phase === 'analyzing' ? 'border-orange-500' : 'border-green-500'}`} />
-                                    <div className={`absolute w-48 h-48 rounded-full border-2 opacity-50 animate-[spin_12s_linear_infinite_reverse] ${phase === 'scanning' ? 'border-red-400' : phase === 'analyzing' ? 'border-amber-400' : 'border-green-400'}`} />
+                                    <div className={`absolute w-40 h-40 lg:w-56 lg:h-56 rounded-full border-4 border-dotted opacity-30 animate-[spin_8s_linear_infinite] ${phase === 'scanning' ? 'border-red-500' : phase === 'analyzing' ? 'border-orange-500' : 'border-green-500'}`} />
+                                    <div className={`absolute w-28 h-28 lg:w-40 lg:h-40 rounded-full border-2 opacity-50 animate-[spin_12s_linear_infinite_reverse] ${phase === 'scanning' ? 'border-red-400' : phase === 'analyzing' ? 'border-amber-400' : 'border-green-400'}`} />
 
                                     {/* Center Icon */}
                                     <div className="relative z-10 p-6 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 shadow-2xl">
@@ -345,7 +345,7 @@ const UploadAirWaybill: React.FC = () => {
                     </div>
 
                     {/* === RIGHT PANEL: FILE TIMELINE === */}
-                    <div className={`p-8 flex-1 bg-black/20 overflow-y-auto max-h-[600px] transition-all duration-500 ${phase === 'idle' ? 'hidden' : 'block'}`}>
+                    <div className={`p-4 lg:p-6 flex-1 bg-black/20 overflow-y-auto max-h-[350px] lg:max-h-[500px] transition-all duration-500 ${phase === 'idle' ? 'hidden' : 'block'}`}>
                         <h3 className="text-lg font-bold text-gray-400 mb-6 flex items-center gap-2">
                             STREAM DE DATOS ({files.length})
                             <div className="flex-1 h-px bg-gray-800" />
@@ -383,7 +383,7 @@ const UploadAirWaybill: React.FC = () => {
                                             <div className="flex items-center gap-2 mb-2">
                                                 <div className={`w-1.5 h-1.5 rounded-full ${f.status === 'success' ? 'bg-green-400' : 'bg-red-400'} animate-pulse`} />
                                                 <p className="text-xs font-mono opacity-80 truncate text-gray-300">
-                                                    {f.message && f.status === 'invalid' ? f.message.replace(`El archivo ${f.file.name}`, '').replace('no es una guía aérea válida.', 'Formato no reconocido') : getStatusLabel(f.status, f.progress, f.message)}
+                                                    {f.message && f.status === 'invalid' ? f.message.replace(`El archivo ${f.file.name}`, '').replace('no es una guía aérea válida.', 'Formato no reconocido') : getStatusLabel(f.status, f.message)}
                                                 </p>
                                             </div>
 
@@ -441,7 +441,7 @@ const UploadAirWaybill: React.FC = () => {
                 </motion.div>
 
                 {/* Footer Security */}
-                <div className="mt-8 flex items-center gap-2 text-gray-600">
+                <div className="mt-4 lg:mt-6 flex items-center gap-2 text-gray-600">
                     <ShieldCheck size={16} />
                     <span className="text-xs tracking-widest uppercase">Conexión Segura TLS 1.3 • Encriptación 256-bit</span>
                 </div>

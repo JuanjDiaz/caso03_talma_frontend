@@ -24,7 +24,7 @@ const AppRoutes = () => {
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route element={<ProtectedRoute />}>
                 <Route element={<MainLayout />}>
-                    <Route path="/" element={<Navigate to="/home" replace />} />
+                    <Route path="/" element={<Navigate to="/login" replace />} />
                     <Route path="/home" element={<HomePage />} />
 
                     <Route path="/users/create" element={<CreateUser />} />

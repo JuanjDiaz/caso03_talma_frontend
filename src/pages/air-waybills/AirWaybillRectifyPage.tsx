@@ -320,6 +320,43 @@ const AirWaybillRectifyPage: React.FC = () => {
                                 />
                             </div>
 
+                            <div className="col-span-1">
+                                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Origen</label>
+                                <input
+                                    type="text"
+                                    name="origenCodigo"
+                                    value={formData.origenCodigo || ''}
+                                    onChange={handleChange}
+                                    placeholder="IATA"
+                                    className={getInputClassName("w-full bg-[#141419] border border-white/5 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none transition-colors", formData.confidenceOrigenCodigo)}
+                                    title={formData.confidenceOrigenCodigo === null ? "Confianza baja o nula" : ""}
+                                />
+                            </div>
+                            <div className="col-span-1">
+                                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Destino</label>
+                                <input
+                                    type="text"
+                                    name="destinoCodigo"
+                                    value={formData.destinoCodigo || ''}
+                                    onChange={handleChange}
+                                    placeholder="IATA"
+                                    className={getInputClassName("w-full bg-[#141419] border border-white/5 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none transition-colors", formData.confidenceDestinoCodigo)}
+                                    title={formData.confidenceDestinoCodigo === null ? "Confianza baja o nula" : ""}
+                                />
+                            </div>
+                            <div className="col-span-2 md:col-span-1">
+                                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Transbordo</label>
+                                <input
+                                    type="text"
+                                    name="transbordo"
+                                    value={formData.transbordo || ''}
+                                    onChange={handleChange}
+                                    placeholder="IATA"
+                                    className={getInputClassName("w-full bg-[#141419] border border-white/5 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none transition-colors", formData.confidenceTransbordo)}
+                                    title={formData.confidenceTransbordo === null ? "Confianza baja o nula" : ""}
+                                />
+                            </div>
+
                             <div className="col-span-2">
                                 <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Aerolínea</label>
                                 <input
