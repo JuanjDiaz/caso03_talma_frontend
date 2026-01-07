@@ -5,7 +5,8 @@ import {
     MoreVertical, Eye, Download, Send, Activity, RefreshCw
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { GuiaAereaDataGridResponse } from '../../../services/documentService';
+import { DocumentService, GuiaAereaDataGridResponse } from '../../../services/documentService';
+import DownloadNotification, { DownloadStatus } from '../../../components/DownloadNotification';
 
 interface AirWaybillTableProps {
     documents: GuiaAereaDataGridResponse[];
@@ -17,6 +18,8 @@ interface AirWaybillTableProps {
 const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, onEdit, viewCode = 'VC001' }) => {
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+    const [downloadingDoc, setDownloadingDoc] = useState<string | null>(null);
+    const [downloadStatus, setDownloadStatus] = useState<DownloadStatus>('downloading');
     const menuRef = useRef<HTMLDivElement>(null);
 
     // Close menu on scroll or resize
@@ -66,14 +69,52 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
 
     const navigate = useNavigate();
 
-    // ... (menu logic)
-
-    const handleAction = (action: string, doc: GuiaAereaDataGridResponse) => {
+    const handleAction = async (action: string, doc: GuiaAereaDataGridResponse) => {
         setOpenMenuId(null);
         console.log(`Action: ${action} on doc: ${doc.numero}`);
 
         if (action === 'view') {
             navigate(`/air-waybills/view/${doc.guiaAereaId}`, { state: { doc } });
+            return;
+        }
+
+        if (action === 'download') {
+            if (!doc.url) {
+                console.error("URL no disponible para descargar");
+                return;
+            }
+
+            const filename = doc.url.split('/').pop() || `${doc.numero || 'documento'}.pdf`;
+            setDownloadingDoc(filename);
+            setDownloadStatus('downloading');
+
+            try {
+                // Descargar el blob usando el servicio
+                const blob = await DocumentService.descargarGuiaAerea(doc.url);
+
+                // Crear URL temporal
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+
+                link.setAttribute('download', filename);
+
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(downloadUrl);
+
+                setDownloadStatus('success');
+            } catch (error) {
+                console.error("Error descargando archivo:", error);
+                setDownloadStatus('error');
+            } finally {
+                // Mantener la notificación por un momento para que el usuario la vea
+                setTimeout(() => {
+                    setDownloadingDoc(null);
+                    setDownloadStatus('downloading'); // Reset status
+                }, 2000);
+            }
             return;
         }
 
@@ -164,7 +205,7 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
                         <tbody className="divide-y divide-white/5">
                             {loading ? (
                                 <tr>
-                                    <td colSpan={10} className="text-center py-12 text-gray-500">
+                                    <td colSpan={8} className="text-center py-12 text-gray-500">
                                         <div className="flex items-center justify-center gap-2">
                                             <div className="w-2 h-2 bg-tivit-red rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                                             <div className="w-2 h-2 bg-tivit-red rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -178,7 +219,7 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                 >
-                                    <td colSpan={10} className="text-center py-12 text-gray-500">No se encontraron registros</td>
+                                    <td colSpan={8} className="text-center py-12 text-gray-500">No se encontraron registros</td>
                                 </motion.tr>
                             ) : (
                                 documents.map((doc, index) => (
@@ -215,8 +256,6 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
                                         <td className="px-3 py-2 max-w-[180px] truncate text-xs text-gray-400" title={doc.nombreConsignatario}>
                                             {doc.nombreConsignatario}
                                         </td>
-
-
 
                                         <td className="px-3 py-2 text-center whitespace-nowrap text-xs">
                                             {getConfidenceBadge(doc.confidenceTotalPct)}
@@ -369,6 +408,12 @@ const AirWaybillTable: React.FC<AirWaybillTableProps> = ({ documents, loading, o
                     </div>
                 </>
             )}
+
+            <DownloadNotification
+                isDownloading={!!downloadingDoc}
+                fileName={downloadingDoc || undefined}
+                status={downloadStatus}
+            />
         </>
     );
 };

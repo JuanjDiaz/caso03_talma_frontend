@@ -61,6 +61,7 @@ export interface GuiaAereaDataGridResponse {
     estadoRegistro?: string;
     habilitado?: boolean;
     fechaConsulta?: string;
+    url?: string;
 }
 
 export interface CollectionResponse<T> {
@@ -179,6 +180,13 @@ export const DocumentService = {
 
     reprocess: async (documentId: string): Promise<BaseOperacionResponse> => {
         const response = await api.post<BaseOperacionResponse>(`/document/reprocess/${documentId}`);
+        return response.data;
+    },
+
+    descargarGuiaAerea: async (url: string): Promise<Blob> => {
+        const response = await api.post('/document/descargarGuiaAerea', { url }, {
+            responseType: 'blob'
+        });
         return response.data;
     }
 };

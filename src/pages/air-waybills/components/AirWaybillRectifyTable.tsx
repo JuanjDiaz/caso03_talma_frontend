@@ -3,10 +3,11 @@ import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
     Edit2, Plane, CheckCircle, XCircle, AlertTriangle, ShieldCheck,
-    MoreVertical, Eye, Activity
+    MoreVertical, Eye, Activity, Download
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { GuiaAereaDataGridResponse } from '../../../services/documentService';
+import { DocumentService, GuiaAereaDataGridResponse } from '../../../services/documentService';
+import DownloadNotification, { DownloadStatus } from '../../../components/DownloadNotification';
 
 interface AirWaybillRectifyTableProps {
     documents: GuiaAereaDataGridResponse[];
@@ -17,6 +18,8 @@ interface AirWaybillRectifyTableProps {
 const AirWaybillRectifyTable: React.FC<AirWaybillRectifyTableProps> = ({ documents, loading, onEdit }) => {
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+    const [downloadingDoc, setDownloadingDoc] = useState<string | null>(null);
+    const [downloadStatus, setDownloadStatus] = useState<DownloadStatus>('downloading');
 
     const navigate = useNavigate();
 
@@ -30,8 +33,6 @@ const AirWaybillRectifyTable: React.FC<AirWaybillRectifyTableProps> = ({ documen
             window.removeEventListener('resize', handleScroll);
         };
     }, []);
-
-
 
     const toggleMenu = (e: React.MouseEvent<HTMLButtonElement>, id: string) => {
         e.stopPropagation();
@@ -48,11 +49,50 @@ const AirWaybillRectifyTable: React.FC<AirWaybillRectifyTableProps> = ({ documen
         }
     };
 
-    const handleAction = (action: string, doc: GuiaAereaDataGridResponse) => {
+    const handleAction = async (action: string, doc: GuiaAereaDataGridResponse) => {
         setOpenMenuId(null);
 
         if (action === 'view') {
             navigate(`/air-waybills/view/${doc.guiaAereaId}`, { state: { doc } });
+            return;
+        }
+
+        if (action === 'download') {
+            if (!doc.url) {
+                console.error("URL no disponible para descargar");
+                return;
+            }
+
+            const filename = doc.url.split('/').pop() || `${doc.numero || 'documento'}.pdf`;
+            setDownloadingDoc(filename);
+            setDownloadStatus('downloading');
+
+            try {
+                // Descargar el blob usando el servicio
+                const blob = await DocumentService.descargarGuiaAerea(doc.url);
+
+                // Crear URL temporal
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+
+                link.setAttribute('download', filename);
+
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(downloadUrl);
+
+                setDownloadStatus('success');
+            } catch (error) {
+                console.error("Error descargando archivo:", error);
+                setDownloadStatus('error');
+            } finally {
+                setTimeout(() => {
+                    setDownloadingDoc(null);
+                    setDownloadStatus('downloading');
+                }, 2000);
+            }
             return;
         }
 
@@ -144,7 +184,7 @@ const AirWaybillRectifyTable: React.FC<AirWaybillRectifyTableProps> = ({ documen
                         <tbody className="divide-y divide-white/5">
                             {loading ? (
                                 <tr>
-                                    <td colSpan={10} className="text-center py-12 text-gray-500">
+                                    <td colSpan={8} className="text-center py-12 text-gray-500">
                                         <div className="flex items-center justify-center gap-2">
                                             <div className="w-2 h-2 bg-tivit-red rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                                             <div className="w-2 h-2 bg-tivit-red rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -158,7 +198,7 @@ const AirWaybillRectifyTable: React.FC<AirWaybillRectifyTableProps> = ({ documen
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                 >
-                                    <td colSpan={10} className="text-center py-12 text-gray-500">No se encontraron registros</td>
+                                    <td colSpan={8} className="text-center py-12 text-gray-500">No se encontraron registros</td>
                                 </motion.tr>
                             ) : (
                                 documents.map((doc, index) => (
@@ -195,8 +235,6 @@ const AirWaybillRectifyTable: React.FC<AirWaybillRectifyTableProps> = ({ documen
                                         <td className="px-3 py-2 max-w-[180px] truncate text-xs text-gray-400" title={doc.nombreConsignatario}>
                                             {doc.nombreConsignatario}
                                         </td>
-
-
 
                                         <td className="px-3 py-2 text-center whitespace-nowrap text-xs">
                                             {getConfidenceBadge(doc.confidenceTotalPct)}
@@ -291,6 +329,14 @@ const AirWaybillRectifyTable: React.FC<AirWaybillRectifyTableProps> = ({ documen
                                         </button>
 
                                         <button
+                                            onClick={() => handleAction('download', doc)}
+                                            className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1E1E24] hover:text-white flex items-center gap-2 transition-colors"
+                                        >
+                                            <Download size={14} className="text-gray-500" />
+                                            Descargar
+                                        </button>
+
+                                        <button
                                             onClick={() => handleAction('reprocess', doc)}
                                             className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-[#1E1E24] hover:text-white flex items-center gap-2 transition-colors"
                                         >
@@ -313,6 +359,12 @@ const AirWaybillRectifyTable: React.FC<AirWaybillRectifyTableProps> = ({ documen
                 </>,
                 document.body
             )}
+
+            <DownloadNotification
+                isDownloading={!!downloadingDoc}
+                fileName={downloadingDoc || undefined}
+                status={downloadStatus}
+            />
         </>
     );
 };
